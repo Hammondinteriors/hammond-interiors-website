@@ -1103,56 +1103,26 @@
                 container.appendChild(section);
             });
 
-            // Add Labor & Custom Work as another category
+            // Add Additional Labour & Materials as a final category
             const laborSection = document.createElement('div');
             laborSection.className = 'item-category';
 
             const laborTitle = document.createElement('div');
             laborTitle.className = 'category-title';
-            laborTitle.textContent = 'Labor & Custom Work (£30/h + VAT)';
+            laborTitle.textContent = 'Additional Labour & Materials';
             laborSection.appendChild(laborTitle);
-
-            const laborList = document.createElement('div');
-            laborList.className = 'item-list';
-
-            customWork.forEach((work, idx) => {
-                const workKey = `labor-preset-${idx}`;
-                const row = document.createElement('div');
-                row.className = 'item-row';
-
-                const totalHours = work.hours;
-                const cost = totalHours * 30;
-
-                row.innerHTML = `
-                    <input type="checkbox" class="item-checkbox" data-key="${workKey}" data-price="${cost}" data-hours="${totalHours}" data-type="labor" onchange="updateSummary()">
-                    <div class="item-info">
-                        <div class="item-name">${work.name}</div>
-                        <div class="item-spec">${work.desc} (${totalHours}h)</div>
-                    </div>
-                    <input type="number" min="1" value="1" class="item-quantity" data-key="${workKey}" onchange="updateSummary()" style="display: none;">
-                    <div class="item-price">£${cost} + VAT</div>
-                `;
-
-                row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-                    const qtyInput = row.querySelector('.item-quantity');
-                    qtyInput.style.display = e.target.checked ? 'block' : 'none';
-                    updateSummary();
-                });
-
-                laborList.appendChild(row);
-            });
-
-            laborSection.appendChild(laborList);
 
             // Custom hours & materials as form inputs
             const customDiv = document.createElement('div');
-            customDiv.style.marginTop = '1rem';
-            customDiv.style.paddingTop = '1rem';
-            customDiv.style.borderTop = '1px solid var(--border-color)';
             customDiv.innerHTML = `
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.2rem;">
+                    Anything not covered above — extra prep, awkward access, or one-off jobs — is charged at
+                    <strong style="color: var(--accent-gold);">£30/hour + VAT</strong>. Add an estimate of the hours here,
+                    plus the cost of any materials we supply. Leave blank if not needed.
+                </p>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label for="customHours" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Hours</label>
+                        <label for="customHours" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Hours (£30/h)</label>
                         <input type="number" id="customHours" min="0" step="0.5" placeholder="e.g., 5" onchange="updateSummary()" style="padding: 0.6rem; width: 100%;">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
