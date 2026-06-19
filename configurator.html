@@ -731,6 +731,11 @@
     </div>
 
     <script>
+        // Format a number as GBP with 2 decimals, e.g. 62.5 -> "£62.50"
+        function gbp(n) {
+            return '£' + Number(n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         const customWork = [
             { name: 'Remove existing kitchen/bathroom', hours: 8, desc: 'Removal & disposal' },
             { name: 'Custom cupboard/built-in build', hours: 16, desc: 'Bespoke carpentry' },
@@ -740,77 +745,174 @@
             { name: 'Wall preparation/making good', hours: 3, desc: 'Per area' }
         ];
 
+        // Shared trade work (Home Survey + DIFM sheets) — applies to both kitchen & bathroom. All ex-VAT, Area C.
+        const sharedTrades = {
+            'Floor & Wall Tiling': [
+                { name: 'Tile walls or floor — ceramic', spec: 'per sq meter', price: 58.33, qty: 1, desc: 'Lay ceramic wall or floor tiles incl. adhesive & standard grout (min 5m²)' },
+                { name: 'Tile walls or floor — porcelain/mosaic', spec: 'per sq meter', price: 60.83, qty: 1, desc: 'Lay porcelain or mosaic tiles incl. adhesive & standard grout (min 5m²)' },
+                { name: 'Tile walls or floor — natural stone', spec: 'per sq meter', price: 62.50, qty: 1, desc: 'Lay natural stone or large-format tiles incl. adhesive & standard grout (min 5m²)' },
+                { name: 'Tile backing board / anti-fracture mat', spec: 'per sq meter', price: 38.33, qty: 1, desc: 'Fit backing board, anti-fracture mat or UFH insulation board before tiling' }
+            ],
+            'Flooring': [
+                { name: 'Laminate / click-lock LVT', spec: 'per sq meter', price: 20.00, qty: 1, desc: 'Install laminate or click-lock LVT incl. fitting of customer-supplied underlay (min 5m²)' },
+                { name: 'Engineered wood (click-lock)', spec: 'per sq meter', price: 27.50, qty: 1, desc: 'Install click-lock engineered wood flooring incl. underlay (min 5m²)' },
+                { name: 'Solid wood (click-lock)', spec: 'per sq meter', price: 29.17, qty: 1, desc: 'Install click-lock solid wood flooring incl. underlay (min 5m²)' },
+                { name: 'Solid wood (glued & fixed)', spec: 'per sq meter', price: 38.33, qty: 1, desc: 'Install solid wood flooring incl. supply of adhesive/fixings (min 5m²)' },
+                { name: 'Herringbone LVT', spec: 'per sq meter', price: 25.83, qty: 1, desc: 'Install herringbone LVT click-lock incl. underlay (min 5m²)' },
+                { name: 'Herringbone engineered wood', spec: 'per sq meter', price: 37.50, qty: 1, desc: 'Install herringbone T&G engineered wood flooring incl. adhesive/fixings (min 5m²)' }
+            ],
+            'Floor Preparation': [
+                { name: 'Remove loose-lay floor covering', spec: 'per sq meter', price: 2.92, qty: 1, desc: 'Lift and remove loose-lay floor covering' },
+                { name: 'Remove old tiles / glued flooring', spec: 'per sq meter', price: 15.00, qty: 1, desc: 'Remove existing wall/floor tiles or nailed/glued flooring' },
+                { name: 'Floor leveling (to 5mm)', spec: 'per sq meter', price: 16.67, qty: 1, desc: 'Level floor to 5mm depth incl. leveling compound' },
+                { name: 'Ply subfloor (up to 9mm)', spec: 'per sq meter', price: 18.33, qty: 1, desc: 'Supply and install ply to subfloor up to 9mm' },
+                { name: 'Underfloor heating mat (Tiles/LVT)', spec: 'per sq meter', price: 5.00, qty: 1, desc: 'Install customer-supplied underfloor heating mat for tiles/LVT (min 5m²)' },
+                { name: 'Underfloor heating loose wire', spec: 'per sq meter', price: 6.67, qty: 1, desc: 'Install customer-supplied underfloor heating loose wire for tiles/LVT (min 5m²)' }
+            ],
+            'Plumbing': [
+                { name: 'Additional pipework run', spec: 'per meter', price: 20.83, qty: 1, desc: 'Install additional hot, cold and waste pipework per 1m run' },
+                { name: 'Chase walls for pipework', spec: 'per meter', price: 8.33, qty: 1, desc: 'Cut channels into walls for pipework incl. making good, per 1m run' },
+                { name: 'WC waste pipe', spec: 'per meter', price: 44.17, qty: 1, desc: 'Supply and install WC waste pipe per 1m run' },
+                { name: 'Box in pipework', spec: 'per meter', price: 28.33, qty: 1, desc: 'Box pipework incl. supply of cement board, per linear metre' },
+                { name: 'Relocate / replace main stop cock', spec: 'fixed price', price: 50.00, qty: 1, desc: 'Relocate or replace the existing mains stop cock' }
+            ],
+            'Electrical': [
+                { name: 'Electrical certificate (Part P)', spec: 'fixed price', price: 100.00, qty: 1, desc: 'Provide electrical certificate and notify governing body where required under Part P' },
+                { name: 'Under-unit / cabinet downlight', spec: 'per light', price: 9.17, qty: 1, desc: 'Install an under-unit or cabinet downlight (excludes supply of the light)' },
+                { name: 'Supply for downlights', spec: 'per supply', price: 55.00, qty: 1, desc: 'Install supply for ceiling or cabinet downlights, incl. up to 5m of cable' },
+                { name: 'Fire-rated ceiling spotlight', spec: 'per spot', price: 51.67, qty: 1, desc: 'Supply and install a fire-rated ceiling spot light' },
+                { name: 'New ring main to consumer unit', spec: 'fixed price', price: 165.83, qty: 1, desc: 'Supply and install new ring main back to the consumer unit, incl. 10m cable' },
+                { name: 'Isolation switch for electric shower', spec: 'fixed price', price: 50.00, qty: 1, desc: 'Supply and install a new isolation switch for an electric shower' },
+                { name: 'Main earth / equipotential bonding', spec: 'fixed price', price: 165.83, qty: 1, desc: 'Supply and install main earth / equipotential bonding, incl. up to 10m cable' },
+                { name: 'RCBO / RCD to existing board', spec: 'fixed price', price: 83.33, qty: 1, desc: 'Supply and install an RCBO / RCD to the existing consumer unit' },
+                { name: 'Add-on consumer unit', spec: 'fixed price', price: 165.83, qty: 1, desc: 'Supply and install an add-on consumer unit incl. RCD / MCBs' },
+                { name: 'New consumer unit (18th Edition)', spec: 'fixed price', price: 582.50, qty: 1, desc: 'Supply and install a new consumer unit to BS 7671 incl. RCBOs & surge protection' },
+                { name: 'Move / install switch, socket or cooker point', spec: 'per item', price: 50.00, qty: 1, desc: 'Move or install a light switch, socket or cooker point, incl. up to 5m cable' },
+                { name: 'Replace switch / socket', spec: 'per item', price: 8.33, qty: 1, desc: 'Replace existing switch/socket with a customer-supplied decorative one of same size' },
+                { name: 'Shaver socket', spec: 'fixed price', price: 66.67, qty: 1, desc: 'Install a customer-supplied shaver socket' },
+                { name: 'Additional socket', spec: 'per socket', price: 50.00, qty: 1, desc: 'Install an additional socket (installer supplies standard white socket), incl. 1m cable' },
+                { name: 'Additional electrical cable', spec: 'per meter', price: 2.50, qty: 1, desc: 'Install additional electrical cable (up to 6mm²) per metre' },
+                { name: 'Socket cut-out for tiling/splashback', spec: 'per socket', price: 8.33, qty: 1, desc: 'Cut out tiling or splashback around a socket' }
+            ],
+            'Wall Preparation': [
+                { name: 'Plaster to finish', spec: 'per sq meter', price: 41.67, qty: 1, desc: 'Plaster to a finish ready for decorating (min 5m², excludes decorating)' },
+                { name: 'Supply & fit plasterboard', spec: 'per sq meter', price: 16.67, qty: 1, desc: 'Supply and install 12.5mm plasterboard ready for plastering (min 5m²)' },
+                { name: 'Tanking (wet-area waterproofing)', spec: 'per sq meter', price: 18.33, qty: 1, desc: 'Tank/waterproof wall or floor per square metre' },
+                { name: 'Lay DPM sheet', spec: 'per sq meter', price: 2.50, qty: 1, desc: 'Supply and lay damp-proof membrane sheet per square metre' },
+                { name: 'Drill & fix customer accessories', spec: '3 items max', price: 25.83, qty: 1, desc: 'Drill and fix customer-supplied accessories (kitchens, bathrooms, doors — 3 items max)' }
+            ],
+            'Doors & Finishing': [
+                { name: 'Install single internal door', spec: 'fixed price', price: 62.50, qty: 1, desc: 'Install single internal door incl. removal of old door, three hinges, handles & mortice latch' },
+                { name: 'Install internal french door set', spec: 'fixed price', price: 112.50, qty: 1, desc: 'Install internal french door set incl. removal, hinges, handles & mortice latch' },
+                { name: 'Trim & rehang existing door', spec: 'per door', price: 22.50, qty: 1, desc: 'Trim the bottom of an existing door, remove and rehang (excl. threshold & furniture)' },
+                { name: 'Door lining kit & architrave', spec: 'fixed price', price: 91.67, qty: 1, desc: 'Install door lining kit and architrave/trim incl. removal' },
+                { name: 'Skirting / architrave / window board', spec: 'per meter', price: 11.67, qty: 1, desc: 'Install skirting, architrave or window board per linear metre incl. removal' },
+                { name: 'Scotia / beading', spec: 'per meter', price: 1.67, qty: 1, desc: 'Fit customer-supplied scotia / beading per linear metre' },
+                { name: 'Threshold / transition bar', spec: 'per bar', price: 6.25, qty: 1, desc: 'Fit customer-supplied threshold / transition bar' }
+            ]
+        };
+
         const priceData = {
             kitchen: {
                 'Removal & Prep': [
-                    { name: 'Remove existing kitchen', spec: 'inc. waste removal', price: 120, qty: 1, desc: 'Complete removal and disposal of old kitchen including cabinets, appliances and waste' }
+                    { name: 'Remove existing kitchen', spec: 'inc. waste removal', price: 100.00, qty: 1, desc: 'Complete removal and disposal of old kitchen including cabinets, appliances and waste' }
                 ],
                 'Cabinet Installation': [
-                    { name: 'Installation per standard unit', spec: 'inc. end panels & handles', price: 75, qty: 1, desc: 'Install a single kitchen cabinet with all decorative panels, trim and handles included' },
-                    { name: 'Installation per framed unit', spec: 'inc. decorative panels', price: 80, qty: 1, desc: 'Install a framed cabinet unit with decorative surround panels and all trim' },
-                    { name: 'Installation of specialist unit', spec: 'curved 2-unit', price: 145, qty: 1, desc: 'Install a curved or specialty-shaped cabinet combination (2 units)' },
-                    { name: 'Customise a unit', spec: 'per unit', price: 45, qty: 1, desc: 'Modify or adjust an existing cabinet (drilling, cutting, adapting)' }
-                ],
-                'Appliances': [
-                    { name: 'Fit integrated appliance', spec: 'cooker hood, oven etc', price: 45, qty: 1, desc: 'Install a built-in appliance like an oven, dishwasher or extractor hood' },
-                    { name: 'Disconnect & refit Gas Hob', spec: 'inc. safety check', price: 258, qty: 1, desc: 'Remove old gas hob and install new one with gas connections and safety certification' },
-                    { name: 'Box in boiler & vent', spec: 'per unit', price: 73, qty: 1, desc: 'Build in protective boxing around boiler and associated venting' },
-                    { name: 'Install electrical appliance', spec: 'up to 3.2kw', price: 93, qty: 1, desc: 'Connect electrical appliance with new power circuit and safety isolation switch' },
-                    { name: 'Install dual fuel range cooker', spec: 'inc. gas & electric', price: 320, qty: 1, desc: 'Install a range cooker with both gas and electric connections and full certification' }
-                ],
-                'Sinks & Taps': [
-                    { name: 'Installation of sink & taps', spec: 'inc. hot/cold isolation', price: 90, qty: 1, desc: 'Install sink and taps with hot/cold water connections and isolation valves' }
+                    { name: 'Install standard unit', spec: 'inc. end panels & handles', price: 62.50, qty: 1, desc: 'Install per unit incl. all decorative end panels, cornice, pelmet, plinth, doors, handles and appliances to a suitable existing supply (exc. gas hob)' },
+                    { name: 'Install framed unit', spec: 'inc. decorative panels', price: 66.67, qty: 1, desc: 'Install per framed unit incl. all decorative end panels, cornice, pelmet, plinth, doors and handles' },
+                    { name: 'Install Intelliga unit', spec: 'inc. aluminium rail', price: 79.17, qty: 1, desc: 'Install per Intelliga kitchen unit incl. decorative end panels, plinth, doors, aluminium rail (cornice/pelmet if required) and appliances' },
+                    { name: 'Install specialist unit', spec: 'Mondo / curved / larder', price: 112.50, qty: 1, desc: 'Install specialist unit — Mondo, curved 2-unit combination, 1000mm larder, walk-in larder, 1200mm drawer or 1200mm aventos' },
+                    { name: 'Install specialist framed unit', spec: 'framed Mondo / larder', price: 120.83, qty: 1, desc: 'Install specialist framed unit — Mondo, curved 2-unit, larder, 1200mm drawer or aventos' },
+                    { name: 'Customise a unit', spec: 'per unit', price: 37.50, qty: 1, desc: 'Modify or adapt a unit to fit (cutting, scribing, drilling)' },
+                    { name: 'Build bespoke unit (max 1m)', spec: 'your panels, max 2 shelves', price: 104.17, qty: 1, desc: 'Construct a standard bespoke unit using customer-supplied panels (max 1m wide) incl. up to two shelves with Invisible Fixings' },
+                    { name: 'Build large bespoke unit (max 2m)', spec: 'your panels, max 2 shelves', price: 116.67, qty: 1, desc: 'Construct a large bespoke unit using customer-supplied panels (max 2m wide) incl. up to two shelves with Invisible Fixings' },
+                    { name: 'Colour-matched edging tape', spec: 'per unit', price: 8.33, qty: 1, desc: 'Apply fascia colour-matched edging tape to exposed edges of carcase' },
+                    { name: 'Unit / floating shelves / flyovers', spec: 'per item', price: 16.67, qty: 1, desc: 'Install unit shelves, floating shelves or flyovers incl. Invisible Fixings where required' },
+                    { name: 'All accessories per kitchen', spec: 'whole kitchen', price: 83.33, qty: 1, desc: 'Installation of all accessories per kitchen' }
                 ],
                 'Worktops': [
-                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 75, qty: 1, desc: 'Professional join two worktops end-to-end with precision fitting to walls' },
-                    { name: 'Premium wood worktop finish', spec: 'sanding, oiling', price: 170, qty: 1, desc: 'Sand and oil/seal wood worktops to professional finish' },
-                    { name: 'Premium solid surface finish', spec: 'sanding & finishing', price: 300, qty: 1, desc: 'Sand and finish solid surface worktops with specialized treatment' },
-                    { name: 'Installation of upstand', spec: 'per upstand', price: 25, qty: 1, desc: 'Install protective upstand/splashback trim behind worktop' }
+                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 62.50, qty: 1, desc: 'Join worktop using butt and scribe professional joint — per worktop joint, per curve or per undermount sink' },
+                    { name: 'Premium wood worktop finish', spec: 'per kitchen', price: 141.67, qty: 1, desc: 'Premium charge for wood worktops — sanding, oiling and finishing to manufacturer instructions (per kitchen)' },
+                    { name: 'Premium DIY solid surface finish', spec: 'per kitchen', price: 250.00, qty: 1, desc: 'Premium charge for DIY solid surface worktops — sanding, drainer grooves if required and finishing (per kitchen)' },
+                    { name: 'Premium solid surface finish', spec: 'per kitchen', price: 275.00, qty: 1, desc: 'Premium charge for solid surface worktops — temporary worktops/appliances and reconnection for professional fitting (per kitchen)' },
+                    { name: 'Install upstand', spec: 'per upstand', price: 20.83, qty: 1, desc: 'Install upstand to kitchen worktops (price per upstand)' }
                 ],
-                'Backsplash & Finishing': [
-                    { name: 'Installation of splashback', spec: 'per panel', price: 77, qty: 1, desc: 'Install a single splashback panel (glass, tiles or laminate)' },
-                    { name: 'Minerva splashback', spec: 'per panel', price: 110, qty: 1, desc: 'Install premium Minerva brand splashback panel with specialist finishing' },
-                    { name: 'Install ducting & vent', spec: 'per extraction', price: 53, qty: 1, desc: 'Install extractor hood ducting and vent to outside' }
-                ]
+                'Sinks & Taps': [
+                    { name: 'Install sink & taps', spec: 'within 1m of supply', price: 75.00, qty: 1, desc: 'Install sink and taps within 1 metre of a suitable existing supply, incl. fitting of accessible hot and cold isolating valves' }
+                ],
+                'Appliances': [
+                    { name: 'Fit integrated appliance / cooker hood', spec: 'exc. gas/electric/water', price: 37.50, qty: 1, desc: 'Fit an integrated appliance or cooker hood (excludes any gas/electric/water connections)' },
+                    { name: 'Box in boiler & vent', spec: 'per unit', price: 60.83, qty: 1, desc: 'Box in boiler and vent as required to manufacturer instructions / British Standard' },
+                    { name: 'Install ducting & exterior vent', spec: 'per item', price: 44.17, qty: 1, desc: 'Install ducting and exterior vent for an extractor or tumble dryer to a suitable outside space (excl. materials)' },
+                    { name: 'Connect electric appliance (dishwasher, etc.)', spec: 'per appliance', price: 143.33, qty: 1, desc: 'Install dishwasher / washing machine / American fridge freezer / water softener / kettle tap incl. isolation switch and plumbing' },
+                    { name: 'Disconnect & refit gas hob/oven', spec: 'per appliance', price: 215.00, qty: 1, desc: 'Disconnect old gas hob/oven and refit new or existing gas appliance to gas regulations' },
+                    { name: 'Remove gas appliance & cap supply', spec: 'per capped supply', price: 100.00, qty: 1, desc: 'Remove a gas appliance and permanently cap the supply' },
+                    { name: 'Provide gas certificate', spec: 'if required', price: 75.00, qty: 1, desc: 'Provide a gas safety certificate where required' },
+                    { name: 'Connect electrical appliance (≤3.2kw)', spec: 'up to 3.2kw', price: 77.50, qty: 1, desc: 'Install supplies for an electrical appliance up to 3.2kw (single oven, extractor, etc.) — also for Wickes underfloor heating' },
+                    { name: 'Connect electrical appliance (3.2kw+)', spec: 'over 3.2kw', price: 187.50, qty: 1, desc: 'Install supplies for an electrical appliance of 3.2kw or more' },
+                    { name: 'Install dual-fuel range cooker', spec: 'gas + electric', price: 266.67, qty: 1, desc: 'Install dual-fuel range cooker incl. accessible cooker switch, new circuit to fuse board and gas supply to Gas Safe regulations' }
+                ],
+                'Splashback & Radiator': [
+                    { name: 'Install splashback', spec: 'per panel', price: 64.17, qty: 1, desc: 'Install a splashback panel' },
+                    { name: 'Install Minerva splashback', spec: 'per panel', price: 91.67, qty: 1, desc: 'Install Minerva splashback excluding cut-outs' },
+                    { name: 'Install designer / column radiator', spec: 'up to 6m pipework', price: 162.50, qty: 1, desc: 'Install a designer / column radiator incl. up to 6 metres of pipework' }
+                ],
+                ...sharedTrades
             },
             bathroom: {
                 'Removal & Prep': [
-                    { name: 'Remove bathroom', spec: 'inc. waste removal', price: 120, qty: 1, desc: 'Complete removal and disposal of old bathroom including suite, fixtures and waste' }
+                    { name: 'Remove existing bathroom', spec: 'inc. waste removal', price: 100.00, qty: 1, desc: 'Complete removal and disposal of old bathroom including suite, fixtures and waste' }
                 ],
                 'Bath & Shower': [
-                    { name: 'Installation of standard bath/shower', spec: 'inc. pipework & panels', price: 278, qty: 1, desc: 'Install standard freestanding or built-in bath with pipework and panels' },
-                    { name: 'Installation of whirlpool bath', spec: 'inc. electrics & waste', price: 342, qty: 1, desc: 'Install whirlpool/jacuzzi bath with electrical connections and specialized plumbing' },
-                    { name: 'Installation of shower screen', spec: 'per screen', price: 58, qty: 1, desc: 'Install a shower screen or splash guard' },
-                    { name: 'Installation of shower enclosure 1400mm+', spec: 'inc. tray & waste', price: 314, qty: 1, desc: 'Install large shower enclosure (1400mm+) with tray and waste pipes' },
-                    { name: 'Installation of shower enclosure <1400mm', spec: 'inc. tray & waste', price: 263, qty: 1, desc: 'Install smaller shower enclosure (less than 1400mm) with tray and waste pipes' },
-                    { name: 'Installation of wetroom tray', spec: 'inc. waste & pipework', price: 675, qty: 1, desc: 'Install a wet room floor tray with integrated drainage system' },
-                    { name: 'Installation of thermostatic mixer shower', spec: 'inc. pipework', price: 167, qty: 1, desc: 'Install temperature-controlled mixer shower with safety anti-scald protection' },
-                    { name: 'Installation of electric shower', spec: 'inc. electrical', price: 109, qty: 1, desc: 'Install an electric shower unit with new electrical circuit and isolator' }
+                    { name: 'Install standard bath / shower bath', spec: 'inc. panels, tap & 1m pipework', price: 231.67, qty: 1, desc: 'Install standard bath / shower bath (freestanding & easy access) incl. bath panels, No More Leaks kit and tap to 1m of hot, cold & waste pipework (excludes shower screens)' },
+                    { name: 'Install whirlpool bath', spec: 'inc. electrics & 1m pipework', price: 285.00, qty: 1, desc: 'Install whirlpool bath incl. No More Leaks kit, accessible electrical isolation switch and 1m of hot/cold/waste pipework' },
+                    { name: 'Install shower screen to bath', spec: 'per screen', price: 48.33, qty: 1, desc: 'Install a shower screen to a bath' },
+                    { name: 'Install shower enclosure & tray (1400mm+)', spec: 'inc. waste & 1m pipework', price: 261.67, qty: 1, desc: 'Install shower enclosure and tray 1400mm or more incl. waste trap, up to 1m waste pipework and No More Leaks kit' },
+                    { name: 'Install shower enclosure & tray (<1400mm)', spec: 'inc. waste & 1m pipework', price: 219.17, qty: 1, desc: 'Install shower enclosure and tray less than 1400mm incl. waste trap, up to 1m waste pipework and No More Leaks kit' },
+                    { name: 'Install wetroom tray', spec: 'inc. kit, deflectors & ply', price: 562.50, qty: 1, desc: 'Install wetroom tray with supplied kit, No More Leaks, waste kit (up to 1m), deflector panels and supply/fit of ply to support tray' },
+                    { name: 'Install shower / steam cabin', spec: 'inc. 1m pipework & isolation', price: 514.17, qty: 1, desc: 'Install shower / steam cabin incl. 1m of hot & cold pipework and accessible electrical isolation if required' },
+                    { name: 'Install thermostatic mixer shower', spec: 'inc. 1m pipework', price: 139.17, qty: 1, desc: 'Install thermostatic mixer shower incl. 1m of hot/cold pipework' },
+                    { name: 'Install electric shower', spec: 'to existing supply', price: 90.83, qty: 1, desc: 'Install electric shower to a suitable existing plumbing and electrical circuit' },
+                    { name: 'Install shower pump', spec: 'inc. up to 2m pipework', price: 121.67, qty: 1, desc: 'Install shower pump incl. up to 2m of hot/cold pipework and accessible electrical isolation switch' },
+                    { name: 'Install inset bath top, side & end panel', spec: 'per panel', price: 47.50, qty: 1, desc: 'Install inset bath top, side and end panel (price per panel)' },
+                    { name: 'Install laminate / acrylic panel', spec: 'per panel', price: 58.33, qty: 1, desc: 'Install laminate / acrylic shower or bath panel (price per panel)' },
+                    { name: 'Install shower tray leg kit', spec: 'Wickes supplied', price: 48.33, qty: 1, desc: 'Install a Wickes-supplied shower tray leg kit' }
                 ],
                 'WC & Bidets': [
-                    { name: 'Installation of WC', spec: 'inc. waste & water', price: 245, qty: 1, desc: 'Install toilet with water supply and waste pipe connections' },
-                    { name: 'Installation of wall-hung toilet', spec: 'inc. frame & pipework', price: 245, qty: 1, desc: 'Install wall-mounted toilet with concealed cistern frame and pipework' },
-                    { name: 'Installation of bidet & tap', spec: 'inc. connections', price: 228, qty: 1, desc: 'Install bidet with hot/cold taps and water supply connections' }
+                    { name: 'Install WC', spec: 'inc. soil connection & 1m cold', price: 204.17, qty: 1, desc: 'Install WC (incl. traditional low and high cisterns) incl. connection to existing soil stack and 1m of cold pipework' },
+                    { name: 'Install bidet & tap', spec: 'inc. 1m cold & waste', price: 190.00, qty: 1, desc: 'Install bidet and tap incl. 1m of cold and waste pipework' },
+                    { name: 'Install wall-hung toilet / basin frame', spec: 'per frame', price: 29.17, qty: 1, desc: 'Install wall-hung toilet / basin frame (excludes any studwork or strengthening)' }
                 ],
-                'Vanities & Basins': [
-                    { name: 'Installation per unit', spec: 'general unit', price: 85, qty: 1, desc: 'Install a single bathroom unit/cabinet with connections' },
-                    { name: 'Installation of combined vanity & basin', spec: 'inc. pipework', price: 293, qty: 1, desc: 'Install vanity unit with integrated basin and all plumbing connections' },
-                    { name: 'Installation of wall-hung toilet/basin frame', spec: 'per frame', price: 35, qty: 1, desc: 'Install support frame for wall-hung toilet or basin' }
+                'Basins & Vanities': [
+                    { name: 'Install basin', spec: 'inc. tap & 1m pipework', price: 212.50, qty: 1, desc: 'Install basin incl. No More Leaks kit and tap to 1m of hot, cold and waste pipework' },
+                    { name: 'Install combined vanity unit & basin', spec: 'inc. 1m pipework', price: 244.17, qty: 1, desc: 'Install combined vanity unit and basin incl. 1m of hot, cold and waste pipework' },
+                    { name: 'Install unit', spec: 'inc. decorative panels', price: 48.33, qty: 1, desc: 'Install per unit incl. all decorative end panels, cornice, pelmet, plinth, doors and handles' },
+                    { name: 'Customise a unit / flyover / shelving', spec: 'per unit/item', price: 37.50, qty: 1, desc: 'Customise a unit to fit, install a flyover or additional shelving (priced per item)' },
+                    { name: 'Install decorative insert boxes', spec: 'per box', price: 8.33, qty: 1, desc: 'Install decorative insert boxes (excludes any tiling or supporting stud work)' }
                 ],
-                'Tiling & Flooring': [
-                    { name: 'Installation of ceramic tiles', spec: 'per sq meter', price: 70, qty: 1, desc: 'Tile walls or floors with ceramic tiles (per square meter)' },
-                    { name: 'Installation of porcelain tiles', spec: 'per sq meter', price: 73, qty: 1, desc: 'Tile walls or floors with porcelain tiles (per square meter)' },
-                    { name: 'Installation of natural stone tiles', spec: 'per sq meter', price: 75, qty: 1, desc: 'Tile walls or floors with natural stone tiles (per square meter)' },
-                    { name: 'Install tile backing board', spec: 'per sq meter', price: 46, qty: 1, desc: 'Install waterproof backing board before tiling (per square meter)' }
+                'Wall Systems & Furniture': [
+                    { name: 'Single Rimini wall system', spec: 'excl. basin', price: 83.33, qty: 1, desc: 'Install single Rimini wall system combination (excludes basin installation if required)' },
+                    { name: 'Double Rimini wall system', spec: 'excl. basin', price: 166.67, qty: 1, desc: 'Install double Rimini wall system combination (excludes basin installation if required)' },
+                    { name: 'Triple Rimini wall system', spec: 'excl. basin', price: 250.00, qty: 1, desc: 'Install triple Rimini wall system combination (excludes basin installation if required)' },
+                    { name: 'Fitted furniture package (WC & vanity)', spec: 'inc. 1m pipework', price: 496.67, qty: 1, desc: 'Install fitted furniture package incl. WC & vanity units and 1m of hot, cold and waste pipework' },
+                    { name: 'Fitted furniture package (WC, vanity & tower)', spec: 'inc. 1m pipework', price: 545.00, qty: 1, desc: 'Install fitted furniture package incl. WC, vanity unit & base/tower unit and 1m of hot, cold and waste pipework' }
                 ],
-                'Worktops': [
-                    { name: 'Installation of solid surface worktops', spec: 'inc. finishing', price: 100, qty: 1, desc: 'Install solid surface vanity worktop with professional finishing' },
-                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 75, qty: 1, desc: 'Professional join of two worktops with precision fitting' }
+                'Tiling Boards & Worktops': [
+                    { name: 'Floor/wall kit (4 boards)', spec: 'inc. tape & adhesive', price: 90.00, qty: 1, desc: 'Install floor/wall kit incl. 4 customer-supplied boards, joint tape/sealing compound and fixings with installer-supplied adhesive' },
+                    { name: 'Floor/wall kit (6 boards)', spec: 'inc. tape & adhesive', price: 135.00, qty: 1, desc: 'Install floor/wall kit incl. 6 customer-supplied boards, joint tape/sealing compound and fixings with installer-supplied adhesive' },
+                    { name: 'Single tile backing board', spec: 'Elements board', price: 29.17, qty: 1, desc: 'Install a single Elements tile backing board incl. installer-supplied tape, sealant & fixings' },
+                    { name: 'Install solid surface worktop', spec: 'inc. finishing', price: 83.33, qty: 1, desc: 'Install solid surface worktops incl. sanding and finishing to manufacturer instructions' },
+                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 62.50, qty: 1, desc: 'Join worktop using butt and scribe professional joint (min. 2 worktop bolts per joint)' }
                 ],
-                'Accessories': [
-                    { name: 'Installation of towel rail/radiator', spec: 'inc. pipework up to 6m', price: 195, qty: 1, desc: 'Install heated towel rail or radiator with plumbing up to 6m' },
-                    { name: 'Installation of fitted furniture package', spec: 'WC & Vanities (1m pipework)', price: 596, qty: 1, desc: 'Complete fitted bathroom furniture package including WC and vanity with plumbing' }
-                ]
+                'Towel Rail & Radiator': [
+                    { name: 'Install towel rail / radiator', spec: 'up to 6m pipework', price: 162.50, qty: 1, desc: 'Install towel rail / radiator incl. up to 6 metres of pipework' }
+                ],
+                'Electrical & Extraction': [
+                    { name: 'Install circuit for electric shower', spec: 'inc. new circuit & isolation', price: 233.33, qty: 1, desc: 'Install circuit for electric shower incl. up to 1m of cold pipework, accessible isolation switch and new circuit to the fuse board' },
+                    { name: 'Install extractor unit', spec: 'customer supplied', price: 155.00, qty: 1, desc: 'Install customer-supplied extractor unit incl. accessible electrical isolating switch and venting to a suitable space' },
+                    { name: 'Supplies for LED mirror', spec: 'inc. up to 5m cable', price: 77.50, qty: 1, desc: 'Install supplies for an LED mirror incl. accessible electrical isolating switch and up to 5m of cable' }
+                ],
+                ...sharedTrades
             }
         };
 
@@ -887,7 +989,7 @@
 
                     const isMetered = item.spec.includes('per meter') || item.spec.includes('per sq');
                     const unit = item.spec.includes('sq') ? 'm²' : 'm';
-                    const priceDisplay = isMetered ? `£${item.price}/${unit}` : `£${item.price}`;
+                    const priceDisplay = isMetered ? `${gbp(item.price)}/${unit}` : gbp(item.price);
 
                     // Check if this item should be pre-selected
                     const isSelected = selectedItems[itemKey] !== undefined;
@@ -1063,7 +1165,7 @@
                     let qtyDisplay = '';
                     if (item.isMetered) {
                         const unit = item.spec.includes('sq') ? 'm²' : 'm';
-                        qtyDisplay = `${item.qty}${unit} @ £${item.price}/${unit}`;
+                        qtyDisplay = `${item.qty}${unit} @ ${gbp(item.price)}/${unit}`;
                     } else {
                         qtyDisplay = item.qty > 1 ? `×${item.qty}` : '';
                     }
@@ -1071,7 +1173,7 @@
                     row.innerHTML = `
                         <span class="summary-item-name">${itemName}</span>
                         ${qtyDisplay ? `<span class="summary-item-qty">${qtyDisplay}</span>` : ''}
-                        <span class="summary-item-price">£${(item.price * item.qty).toLocaleString()}</span>
+                        <span class="summary-item-price">${gbp(item.price * item.qty)}</span>
                     `;
                     summary.appendChild(row);
                 }
@@ -1128,7 +1230,7 @@
                 row.style.marginTop = '0.8rem';
                 row.innerHTML = `
                     <span class="summary-item-name">Subtotal (ex VAT)</span>
-                    <span class="summary-item-price">£${grandSubtotal.toLocaleString()}</span>
+                    <span class="summary-item-price">${gbp(grandSubtotal)}</span>
                 `;
                 summary.appendChild(row);
             }
@@ -1139,13 +1241,13 @@
                 row.className = 'summary-item';
                 row.innerHTML = `
                     <span class="summary-item-name">VAT (20%)</span>
-                    <span class="summary-item-price">£${vat.toLocaleString()}</span>
+                    <span class="summary-item-price">${gbp(vat)}</span>
                 `;
                 summary.appendChild(row);
             }
 
             // Total (inc VAT)
-            document.getElementById('directTotal').textContent = `£${grandTotal.toLocaleString()}`;
+            document.getElementById('directTotal').textContent = gbp(grandTotal);
         }
 
         function showQuestion() {
@@ -1270,10 +1372,19 @@
             const roomSize = measurements[0] * measurements[1]; // Total area
             let itemCounter = 0; // Counter for unique keys
 
+            // Only auto-suggest from common/core categories. Deep trade work (electrical,
+            // plumbing, doors, prep, premium extras) is left for the user to add manually.
+            const coreCategories = [
+                'Removal & Prep', 'Cabinet Installation', 'Sinks & Taps',
+                'Bath & Shower', 'WC & Bidets', 'Basins & Vanities',
+                'Floor & Wall Tiling'
+            ];
+
             // Select items from each category based on room size
             Object.keys(items).forEach(category => {
                 const categoryItems = items[category];
                 if (!categoryItems || categoryItems.length === 0) return;
+                if (!coreCategories.includes(category)) return; // skip deep trade categories
 
                 let selectedIndices = [];
                 let quantities = [];
