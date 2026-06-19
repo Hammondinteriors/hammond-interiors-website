@@ -342,6 +342,14 @@
             margin: 0;
         }
 
+        /* Hide native number spinner */
+        .no-spinner { -moz-appearance: textfield; }
+        .no-spinner::-webkit-outer-spin-button,
+        .no-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .quantity-label {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -1112,23 +1120,17 @@
             laborTitle.textContent = 'Additional Labour & Materials';
             laborSection.appendChild(laborTitle);
 
-            // Custom hours & materials as form inputs
+            // Additional labour hours as a form input
             const customDiv = document.createElement('div');
             customDiv.innerHTML = `
                 <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.2rem;">
-                    Anything not covered above — extra prep, awkward access, or one-off jobs — is charged at
-                    <strong style="color: var(--accent-gold);">£30/hour + VAT</strong>. Add an estimate of the hours here,
-                    plus the cost of any materials we supply. Leave blank if not needed.
+                    Anything not covered above (extra prep, awkward access, or one-off jobs) is charged at
+                    <strong style="color: var(--accent-gold);">£30/hour + VAT</strong>. Add an estimate of the hours here.
+                    Leave blank if not needed.
                 </p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="customHours" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Hours (£30/h)</label>
-                        <input type="number" id="customHours" min="0" step="0.5" placeholder="e.g., 5" onchange="updateSummary()" style="padding: 0.6rem; width: 100%;">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="customMaterials" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Materials (£)</label>
-                        <input type="number" id="customMaterials" min="0" step="10" placeholder="e.g., 250" onchange="updateSummary()" style="padding: 0.6rem; width: 100%;">
-                    </div>
+                <div class="form-group" style="margin-bottom: 0; max-width: 260px;">
+                    <label for="customHours" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Hours (£30/h)</label>
+                    <input type="number" id="customHours" class="no-spinner" min="0" step="0.5" placeholder="e.g., 5" onchange="updateSummary()" style="padding: 0.6rem; width: 100%;">
                 </div>
             `;
 
