@@ -1287,11 +1287,16 @@
                 let selectedIndices = [];
                 let quantities = [];
 
-                // Special handling for Cabinet Installation - recommend multiple for all kitchens
+                // Special handling for Cabinet Installation - recommend base + wall units
                 if (category.includes('Cabinet')) {
-                    const numCabinets = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
-                    for (let i = 0; i < Math.min(numCabinets, categoryItems.length); i++) {
-                        selectedIndices.push(i);
+                    // Recommend "Installation per standard unit" multiple times (base + wall units)
+                    const numBaseCabinets = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
+                    const numWallUnits = roomSize < 8 ? 6 : roomSize < 15 ? 8 : 10;
+                    const totalUnits = numBaseCabinets + numWallUnits;
+
+                    // Add standard unit installations (treating as both base and wall)
+                    for (let i = 0; i < totalUnits; i++) {
+                        selectedIndices.push(0); // Always use "Installation per standard unit"
                         quantities.push(1);
                     }
                 } else if (category.includes('Worktop') || category.includes('Tile') || category.includes('Tiling') || category.includes('per meter') || category.includes('per sq')) {
