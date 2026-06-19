@@ -1,0 +1,9 @@
+{
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": "static",
+  "public": true,
+  "rewrites": [
+    { "source": "/:path((?!.*\\.).*)", "destination": "/index.html" }
+  ]
+}
