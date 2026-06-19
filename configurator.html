@@ -40,7 +40,7 @@
 
         .route-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 3rem;
         }
@@ -479,14 +479,6 @@
                         </div>
                         <button class="route-btn" onclick="startQuestionnaire()">Get Guided →</button>
                     </div>
-                    <div class="route-card">
-                        <div class="route-icon">🔨</div>
-                        <div class="route-title">Labor & Custom Work</div>
-                        <div class="route-desc">
-                            Just need labor or custom work? Get a quote for removals, custom builds, or additional work.
-                        </div>
-                        <button class="route-btn" onclick="startLabor()">Quote Labor →</button>
-                    </div>
                 </div>
             </div>
 
@@ -551,31 +543,6 @@
                 </div>
             </div>
 
-            <!-- Labor Only Screen -->
-            <div id="laborScreen" class="screen">
-                <div class="screen-content">
-                    <div class="screen-title">Labor & Custom Work Quote</div>
-                    <div class="screen-subtitle">Select the work you need done (£30/hour + VAT + materials)</div>
-
-                    <div class="builder-grid">
-                        <div class="items-section" id="laborItems"></div>
-                        <div class="quote-summary">
-                            <div class="summary-title">Quote Total</div>
-                            <div class="summary-items" id="laborSummary"></div>
-                            <div class="summary-total">
-                                <span>Total:</span>
-                                <span id="laborTotal">£0</span>
-                            </div>
-                            <div class="summary-note">*VAT applied to labor & materials</div>
-                        </div>
-                    </div>
-
-                    <div class="nav-buttons">
-                        <button class="nav-btn back" onclick="backToRoutes()">← Back</button>
-                        <button class="nav-btn submit" onclick="submitLabor()">Get Quote</button>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
