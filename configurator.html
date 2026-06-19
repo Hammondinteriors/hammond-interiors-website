@@ -546,6 +546,15 @@
     </div>
 
     <script>
+        const customWork = [
+            { name: 'Remove existing kitchen/bathroom', hours: 8, desc: 'Removal & disposal' },
+            { name: 'Custom cupboard/built-in build', hours: 16, desc: 'Bespoke carpentry' },
+            { name: 'Tiling work', hours: 4, desc: 'Per sq meter area' },
+            { name: 'Plumbing modifications', hours: 6, desc: 'Additional works' },
+            { name: 'Electrical work', hours: 4, desc: 'Additional circuits' },
+            { name: 'Wall preparation/making good', hours: 3, desc: 'Per area' }
+        ];
+
         const priceData = {
             kitchen: {
                 Cabinets: [
@@ -714,52 +723,215 @@
                 section.appendChild(list);
                 container.appendChild(section);
             });
+
+            // Add Labor & Custom Work section
+            const laborSection = document.createElement('div');
+            laborSection.className = 'item-category';
+            laborSection.style.marginTop = '2rem';
+            laborSection.style.borderTop = '2px solid var(--accent-gold)';
+            laborSection.style.paddingTop = '1.5rem';
+
+            const laborTitle = document.createElement('div');
+            laborTitle.className = 'category-title';
+            laborTitle.textContent = 'Labor & Custom Work';
+            laborSection.appendChild(laborTitle);
+
+            const laborDesc = document.createElement('div');
+            laborDesc.style.color = 'var(--text-muted)';
+            laborDesc.style.fontSize = '0.9rem';
+            laborDesc.style.marginBottom = '1rem';
+            laborDesc.textContent = '£30/hour + VAT (20%) + materials';
+            laborSection.appendChild(laborDesc);
+
+            // Preset custom work items
+            const presetList = document.createElement('div');
+            presetList.className = 'item-list';
+
+            customWork.forEach((work, idx) => {
+                const workKey = `labor-preset-${idx}`;
+                const row = document.createElement('div');
+                row.className = 'item-row';
+
+                const totalHours = work.hours;
+                const cost = totalHours * 30;
+
+                row.innerHTML = `
+                    <input type="checkbox" class="item-checkbox" data-key="${workKey}" data-price="${cost}" data-hours="${totalHours}" data-type="labor" onchange="updateSummary()">
+                    <div class="item-info">
+                        <div class="item-name">${work.name}</div>
+                        <div class="item-spec">${work.desc} (${totalHours}h)</div>
+                    </div>
+                    <input type="number" min="1" value="1" class="item-quantity" data-key="${workKey}" onchange="updateSummary()" style="display: none;">
+                    <div class="item-price">£${cost} + VAT</div>
+                `;
+
+                row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                    const qtyInput = row.querySelector('.item-quantity');
+                    qtyInput.style.display = e.target.checked ? 'block' : 'none';
+                    updateSummary();
+                });
+
+                presetList.appendChild(row);
+            });
+
+            laborSection.appendChild(presetList);
+
+            // Custom hours & materials
+            const customDiv = document.createElement('div');
+            customDiv.style.marginTop = '1.5rem';
+            customDiv.style.paddingTop = '1.5rem';
+            customDiv.style.borderTop = '1px solid var(--border-color)';
+
+            customDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="customHours" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Labor Hours</label>
+                        <input type="number" id="customHours" min="0" step="0.5" placeholder="e.g., 5" style="padding: 0.6rem; width: 100%;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="customMaterials" style="font-size: 0.9rem; margin-bottom: 0.3rem;">Additional Materials (£)</label>
+                        <input type="number" id="customMaterials" min="0" step="10" placeholder="e.g., 250" style="padding: 0.6rem; width: 100%;">
+                    </div>
+                </div>
+            `;
+
+            laborSection.appendChild(customDiv);
+            container.appendChild(laborSection);
         }
 
         function updateSummary() {
             const checkboxes = document.querySelectorAll('.item-checkbox:checked');
             selectedItems = {};
-            let total = 0;
+            let subtotal = 0;
+            let laborSubtotal = 0;
+            let materialsTotal = 0;
+
+            // Get custom hours and materials
+            const customHours = parseFloat(document.getElementById('customHours')?.value) || 0;
+            const customMaterials = parseFloat(document.getElementById('customMaterials')?.value) || 0;
 
             checkboxes.forEach(cb => {
                 const key = cb.dataset.key;
                 const qtyInput = document.querySelector(`.item-quantity[data-key="${key}"]`);
                 const qty = parseFloat(qtyInput.value) || 1;
                 const price = parseFloat(cb.dataset.price);
-                const itemRow = cb.closest('.item-row');
-                const spec = itemRow.querySelector('.item-spec').textContent;
-                const isMetered = spec.includes('per meter') || spec.includes('per sq');
+                const isLabor = cb.dataset.type === 'labor';
+                const hours = parseFloat(cb.dataset.hours) || 0;
 
-                selectedItems[key] = { price, qty, isMetered, spec };
-                total += price * qty;
+                if (!isLabor) {
+                    const itemRow = cb.closest('.item-row');
+                    const spec = itemRow.querySelector('.item-spec').textContent;
+                    const isMetered = spec.includes('per meter') || spec.includes('per sq');
+                    selectedItems[key] = { price, qty, isMetered, spec, isLabor: false };
+                    subtotal += price * qty;
+                } else {
+                    // Labor items
+                    selectedItems[key] = { price, qty: 1, hours, isLabor: true };
+                    laborSubtotal += price * qty;
+                }
             });
 
+            // Add custom hours to labor
+            if (customHours > 0) {
+                laborSubtotal += customHours * 30;
+            }
+
+            // Add materials
+            materialsTotal = customMaterials;
+
+            // Calculate VAT only on labor + materials (not on products)
+            const laborAndMaterials = laborSubtotal + materialsTotal;
+            const vat = laborAndMaterials * 0.2;
+            const laborWithVat = laborAndMaterials + vat;
+
+            // Build summary
             const summary = document.getElementById('directSummary');
             summary.innerHTML = '';
 
+            // Products (no VAT)
             Object.keys(selectedItems).forEach(key => {
                 const item = selectedItems[key];
-                const row = document.createElement('div');
-                row.className = 'summary-item';
-                const checkbox = document.querySelector(`[data-key="${key}"]`);
-                const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
+                if (!item.isLabor) {
+                    const row = document.createElement('div');
+                    row.className = 'summary-item';
+                    const checkbox = document.querySelector(`[data-key="${key}"]`);
+                    const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
 
-                let qtyDisplay = '';
-                if (item.isMetered) {
-                    const unit = item.spec.includes('sq') ? 'm²' : 'm';
-                    qtyDisplay = `${item.qty}${unit} @ £${item.price}/${unit}`;
-                } else {
-                    qtyDisplay = item.qty > 1 ? `×${item.qty}` : '';
+                    let qtyDisplay = '';
+                    if (item.isMetered) {
+                        const unit = item.spec.includes('sq') ? 'm²' : 'm';
+                        qtyDisplay = `${item.qty}${unit} @ £${item.price}/${unit}`;
+                    } else {
+                        qtyDisplay = item.qty > 1 ? `×${item.qty}` : '';
+                    }
+
+                    row.innerHTML = `
+                        <span class="summary-item-name">${itemName}</span>
+                        ${qtyDisplay ? `<span class="summary-item-qty">${qtyDisplay}</span>` : ''}
+                        <span class="summary-item-price">£${(item.price * item.qty).toLocaleString()}</span>
+                    `;
+                    summary.appendChild(row);
                 }
-
-                row.innerHTML = `
-                    <span class="summary-item-name">${itemName}</span>
-                    ${qtyDisplay ? `<span class="summary-item-qty">${qtyDisplay}</span>` : ''}
-                    <span class="summary-item-price">£${(item.price * item.qty).toLocaleString()}</span>
-                `;
-                summary.appendChild(row);
             });
 
+            // Labor items
+            Object.keys(selectedItems).forEach(key => {
+                const item = selectedItems[key];
+                if (item.isLabor) {
+                    const row = document.createElement('div');
+                    row.className = 'summary-item';
+                    const checkbox = document.querySelector(`[data-key="${key}"]`);
+                    const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
+                    const cost = item.price * item.qty;
+
+                    row.innerHTML = `
+                        <span class="summary-item-name">${itemName}</span>
+                        <span class="summary-item-qty">${item.hours}h</span>
+                        <span class="summary-item-price">£${cost.toLocaleString()}</span>
+                    `;
+                    summary.appendChild(row);
+                }
+            });
+
+            // Custom hours
+            if (customHours > 0) {
+                const row = document.createElement('div');
+                row.className = 'summary-item';
+                row.innerHTML = `
+                    <span class="summary-item-name">Additional Labor</span>
+                    <span class="summary-item-qty">${customHours}h</span>
+                    <span class="summary-item-price">£${(customHours * 30).toLocaleString()}</span>
+                `;
+                summary.appendChild(row);
+            }
+
+            // Materials
+            if (customMaterials > 0) {
+                const row = document.createElement('div');
+                row.className = 'summary-item';
+                row.innerHTML = `
+                    <span class="summary-item-name">Materials</span>
+                    <span class="summary-item-price">£${customMaterials.toLocaleString()}</span>
+                `;
+                summary.appendChild(row);
+            }
+
+            // VAT line (only if labor/materials exist)
+            if (laborAndMaterials > 0) {
+                const row = document.createElement('div');
+                row.className = 'summary-item';
+                row.style.borderTop = '1px solid var(--border-color)';
+                row.style.paddingTop = '0.8rem';
+                row.style.marginTop = '0.8rem';
+                row.innerHTML = `
+                    <span class="summary-item-name">VAT (20%) on Labor & Materials</span>
+                    <span class="summary-item-price">£${vat.toLocaleString()}</span>
+                `;
+                summary.appendChild(row);
+            }
+
+            // Total
+            const total = subtotal + laborWithVat;
             document.getElementById('directTotal').textContent = `£${total.toLocaleString()}`;
         }
 
@@ -865,16 +1037,50 @@
             if (!postcode) return;
 
             let itemsList = '';
-            let total = 0;
+            let productsTotal = 0;
+            let laborTotal = 0;
+            let materialsTotal = 0;
 
+            // Products
             Object.keys(selectedItems).forEach(key => {
-                const checkbox = document.querySelector(`[data-key="${key}"]`);
-                const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
                 const item = selectedItems[key];
-                const subtotal = item.price * item.qty;
-                itemsList += `\n- ${itemName}${item.qty > 1 ? ` ×${item.qty}` : ''}: £${subtotal}`;
-                total += subtotal;
+                if (!item.isLabor) {
+                    const checkbox = document.querySelector(`[data-key="${key}"]`);
+                    const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
+                    const subtotal = item.price * item.qty;
+                    itemsList += `\n- ${itemName}${item.qty > 1 ? ` ×${item.qty}` : ''}: £${subtotal}`;
+                    productsTotal += subtotal;
+                }
             });
+
+            // Labor items
+            Object.keys(selectedItems).forEach(key => {
+                const item = selectedItems[key];
+                if (item.isLabor) {
+                    const checkbox = document.querySelector(`[data-key="${key}"]`);
+                    const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
+                    itemsList += `\n- ${itemName} (${item.hours}h): £${item.price}`;
+                    laborTotal += item.price;
+                }
+            });
+
+            // Custom hours
+            const customHours = parseFloat(document.getElementById('customHours')?.value) || 0;
+            if (customHours > 0) {
+                itemsList += `\n- Additional Labor (${customHours}h @ £30/h): £${customHours * 30}`;
+                laborTotal += customHours * 30;
+            }
+
+            // Materials
+            const customMaterials = parseFloat(document.getElementById('customMaterials')?.value) || 0;
+            if (customMaterials > 0) {
+                itemsList += `\n- Additional Materials: £${customMaterials}`;
+                materialsTotal = customMaterials;
+            }
+
+            const laborAndMaterials = laborTotal + materialsTotal;
+            const vat = laborAndMaterials * 0.2;
+            const total = productsTotal + laborTotal + materialsTotal + vat;
 
             const message = `
 Quote Request - Direct Builder
@@ -889,12 +1095,18 @@ Project:
 Type: ${type}
 Room: ${length}m × ${width}m
 
-Items Selected:${itemsList}
+Items & Labor:${itemsList}
 
-Total: £${total.toLocaleString()}
+Pricing Breakdown:
+Products: £${productsTotal.toLocaleString()}
+Labor: £${laborTotal.toLocaleString()}
+Materials: £${materialsTotal.toLocaleString()}
+VAT (20% on labor/materials): £${vat.toLocaleString()}
+
+TOTAL ESTIMATE: £${total.toLocaleString()}
 
 ---
-This is a detailed quote based on selected items.
+This is a detailed quote based on selected items and estimated labor.
 Final pricing to be confirmed after consultation.
             `;
 
