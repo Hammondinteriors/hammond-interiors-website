@@ -324,10 +324,10 @@ window.addEventListener('scroll', () => {
     scrollTimeout = window.requestAnimationFrame(() => {
         const scrollPos = window.scrollY;
 
-        // Parallax effect for hero section (subtle)
-        const heroContent = document.querySelector('.hero-content');
-        if (heroContent && scrollPos < window.innerHeight) {
-            heroContent.style.transform = 'translateY(' + (scrollPos * 0.5) + 'px)';
+        // Parallax effect for hero background
+        const heroBg = document.querySelector('.hero');
+        if (heroBg && scrollPos < window.innerHeight) {
+            heroBg.style.backgroundPosition = '50% ' + (scrollPos * 0.5) + 'px';
         }
     });
 });
