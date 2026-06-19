@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Design your perfect kitchen or bathroom with Hammond Interiors configurator">
+    <title>Design Your Project - Hammond Interiors</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        .configurator-container {
+            min-height: 100vh;
+            background-color: var(--primary-dark);
+            padding: 80px 20px 40px;
+        }
+
+        .configurator-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .configurator-header h1 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            margin-bottom: 0.5rem;
+        }
+
+        .configurator-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .config-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 3rem;
+        }
+
+        .config-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .config-section {
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .config-section h3 {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-section h3::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .option-card {
+            background: var(--primary-dark);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            border-color: var(--accent-gold);
+            background: rgba(201, 169, 97, 0.1);
+        }
+
+        .option-card.selected {
+            border-color: var(--accent-gold);
+            background: rgba(201, 169, 97, 0.15);
+            box-shadow: 0 0 15px rgba(201, 169, 97, 0.3);
+        }
+
+        .option-card input {
+            display: none;
+        }
+
+        .option-label {
+            cursor: pointer;
+            display: block;
+        }
+
+        .option-name {
+            font-weight: 600;
+            color: var(--text-white);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-price {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .quantity-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            justify-content: center;
+        }
+
+        .quantity-input input {
+            width: 50px;
+            padding: 0.3rem;
+            text-align: center;
+            background: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-white);
+            border-radius: 4px;
+        }
+
+        .quantity-btn {
+            background: var(--tertiary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-white);
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+        }
+
+        /* Quote Summary Sidebar */
+        .quote-summary {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            background: var(--secondary-dark);
+            border: 2px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .quote-summary h3 {
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .summary-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .summary-item-name {
+            flex: 1;
+        }
+
+        .summary-item-price {
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .quote-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--accent-gold);
+        }
+
+        .quote-total-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-white);
+        }
+
+        .quote-total-price {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .config-disclaimer {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(201, 169, 97, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .config-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-summary {
+                position: static;
+                top: auto;
+            }
+
+            .options-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="images/logo.png" alt="Hammond Interiors Logo" class="nav-logo">
+                <div class="nav-text">
+                    <h1>Hammond Interiors</h1>
+                    <p class="nav-tagline">East Sussex</p>
+                </div>
+            </a>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#gallery">Gallery</a></li>
+                <li><a href="configurator.html" class="active">Design Your Project</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="configurator-container">
+        <div class="configurator-header">
+            <h1>Design Your Perfect Project</h1>
+            <p>Select your options below and get a rough quote instantly</p>
+        </div>
+
+        <div class="config-wrapper">
+            <div class="config-main" id="configMain">
+                <!-- Sections will be generated by JavaScript -->
+            </div>
+
+            <div class="quote-summary">
+                <h3>Your Quote</h3>
+                <div class="summary-items" id="summaryItems">
+                    <p style="color: var(--text-muted); text-align: center;">Select items to see your quote</p>
+                </div>
+                <div class="quote-total">
+                    <span class="quote-total-label">Rough Total:</span>
+                    <span class="quote-total-price" id="totalPrice">£0</span>
+                </div>
+                <p class="config-disclaimer">*Rough quote based on area C pricing. Final quote after consultation.</p>
+                <button class="submit-btn" id="submitBtn" disabled>Get Your Quote</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pricing data from PDFs (Area C prices)
+        const pricingData = {
+            projectType: [
+                { id: 'kitchen', name: 'Kitchen', price: 0 },
+                { id: 'bathroom', name: 'Bathroom', price: 0 }
+            ],
+            kitchen: {
+                'Base Cabinets': [
+                    { id: 'kb1', name: '600mm Single Door Base', price: 180 },
+                    { id: 'kb2', name: '900mm Single Door Base', price: 220 },
+                    { id: 'kb3', name: '1200mm Single Door Base', price: 260 },
+                    { id: 'kb4', name: '600mm Double Door Base', price: 280 },
+                    { id: 'kb5', name: '900mm Double Door Base', price: 350 },
+                    { id: 'kb6', name: '1200mm Double Door Base', price: 420 }
+                ],
+                'Wall Cabinets': [
+                    { id: 'kw1', name: '600mm Wall Unit', price: 150 },
+                    { id: 'kw2', name: '900mm Wall Unit', price: 180 },
+                    { id: 'kw3', name: '1200mm Wall Unit', price: 210 }
+                ],
+                'Worktops': [
+                    { id: 'kwt1', name: 'Laminate (per meter)', price: 120 },
+                    { id: 'kwt2', name: 'Solid Surface (per meter)', price: 280 },
+                    { id: 'kwt3', name: 'Granite (per meter)', price: 450 }
+                ],
+                'Appliances': [
+                    { id: 'ka1', name: 'Built-in Oven', price: 400 },
+                    { id: 'ka2', name: 'Gas Hob', price: 350 },
+                    { id: 'ka3', name: 'Induction Hob', price: 500 },
+                    { id: 'ka4', name: 'Extractor Hood', price: 280 },
+                    { id: 'ka5', name: 'Integrated Fridge', price: 600 },
+                    { id: 'ka6', name: 'Dishwasher', price: 450 }
+                ],
+                'Backsplash & Finishing': [
+                    { id: 'kbf1', name: 'Tiled Backsplash (sq m)', price: 85 },
+                    { id: 'kbf2', name: 'Splashback Glass (sq m)', price: 120 },
+                    { id: 'kbf3', name: 'Handles & Hardware Set', price: 150 }
+                ]
+            },
+            bathroom: {
+                'Suites': [
+                    { id: 'bs1', name: 'Standard Toilet Suite', price: 250 },
+                    { id: 'bs2', name: 'Wall-Hung Toilet', price: 350 },
+                    { id: 'bs3', name: 'Close-Coupled Suite', price: 300 }
+                ],
+                'Baths': [
+                    { id: 'bb1', name: 'Acrylic Bath 1700mm', price: 280 },
+                    { id: 'bb2', name: 'Acrylic Bath 1800mm', price: 320 },
+                    { id: 'bb3', name: 'Whirlpool Bath', price: 800 }
+                ],
+                'Showers': [
+                    { id: 'bsh1', name: 'Shower Tray 800x800', price: 150 },
+                    { id: 'bsh2', name: 'Shower Enclosure - Framed', price: 400 },
+                    { id: 'bsh3', name: 'Shower Enclosure - Frameless', price: 600 },
+                    { id: 'bsh4', name: 'Thermostatic Shower Valve', price: 200 }
+                ],
+                'Vanities & Storage': [
+                    { id: 'bv1', name: '600mm Vanity Unit', price: 320 },
+                    { id: 'bv2', name: '900mm Vanity Unit', price: 450 },
+                    { id: 'bv3', name: 'Mirror Cabinet', price: 280 }
+                ],
+                'Tiles & Finishing': [
+                    { id: 'btf1', name: 'Wall Tiles (sq m)', price: 65 },
+                    { id: 'btf2', name: 'Floor Tiles (sq m)', price: 75 },
+                    { id: 'btf3', name: 'Underfloor Heating (sq m)', price: 85 }
+                ],
+                'Accessories': [
+                    { id: 'bac1', name: 'Towel Rails', price: 100 },
+                    { id: 'bac2', name: 'Mirrors & Lighting', price: 150 },
+                    { id: 'bac3', name: 'Ventilation Fan', price: 120 }
+                ]
+            }
+        };
+
+        let selectedItems = {};
+        let currentProjectType = null;
+
+        const configMain = document.getElementById('configMain');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Initialize project type selector
+        function initProjectType() {
+            const section = document.createElement('div');
+            section.className = 'config-section';
+            section.innerHTML = `
+                <h3>What are you building?</h3>
+                <div class="options-grid">
+                    ${pricingData.projectType.map(type => `
+                        <div class="option-card" data-type="project" data-id="${type.id}">
+                            <label class="option-label">
+                                <input type="radio" name="projectType" value="${type.id}">
+                                <span class="option-name">${type.name}</span>
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            configMain.appendChild(section);
+
+            // Add event listeners
+            section.querySelectorAll('[data-type="project"]').forEach(card => {
+                card.addEventListener('click', () => {
+                    selectProjectType(card.dataset.id);
+                });
+            });
+        }
+
+        function selectProjectType(type) {
+            currentProjectType = type;
+            selectedItems = {};
+
+            // Update project type UI
+            document.querySelectorAll('[data-type="project"]').forEach(card => {
+                card.classList.remove('selected');
+                card.querySelector('input').checked = false;
+            });
+            document.querySelector(`[data-type="project"][data-id="${type}"]`).classList.add('selected');
+            document.querySelector(`[data-type="project"][data-id="${type}"] input`).checked = true;
+
+            // Load categories for this project type
+            loadCategories(type);
+            updateQuote();
+        }
+
+        function loadCategories(projectType) {
+            const categories = pricingData[projectType];
+            const existingSections = document.querySelectorAll('.config-section:not(:first-child)');
+            existingSections.forEach(s => s.remove());
+
+            Object.keys(categories).forEach((category, index) => {
+                setTimeout(() => {
+                    const section = document.createElement('div');
+                    section.className = 'config-section';
+                    section.innerHTML = `<h3>${category}</h3>`;
+
+                    const grid = document.createElement('div');
+                    grid.className = 'options-grid';
+
+                    categories[category].forEach(option => {
+                        const card = document.createElement('div');
+                        card.className = 'option-card';
+                        card.dataset.id = option.id;
+                        card.dataset.category = category;
+                        card.innerHTML = `
+                            <label class="option-label">
+                                <input type="checkbox" value="${option.id}" data-price="${option.price}">
+                                <span class="option-name">${option.name}</span>
+                                <span class="option-price">£${option.price}</span>
+                                <div class="quantity-input" style="display: none;">
+                                    <button type="button" class="quantity-btn qty-minus">−</button>
+                                    <input type="number" class="qty-input" min="1" value="1" readonly>
+                                    <button type="button" class="quantity-btn qty-plus">+</button>
+                                </div>
+                            </label>
+                        `;
+
+                        card.addEventListener('click', () => toggleOption(card, option));
+                        grid.appendChild(card);
+                    });
+
+                    section.appendChild(grid);
+                    configMain.appendChild(section);
+                }, index * 100);
+            });
+        }
+
+        function toggleOption(card, option) {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            const qtyInput = card.querySelector('.quantity-input');
+
+            checkbox.checked = !checkbox.checked;
+            card.classList.toggle('selected');
+
+            if (checkbox.checked) {
+                qtyInput.style.display = 'flex';
+                if (!selectedItems[option.id]) {
+                    selectedItems[option.id] = {
+                        name: option.name,
+                        price: option.price,
+                        quantity: 1,
+                        category: card.dataset.category
+                    };
+                }
+            } else {
+                qtyInput.style.display = 'none';
+                delete selectedItems[option.id];
+            }
+
+            setupQuantityButtons(card);
+            updateQuote();
+        }
+
+        function setupQuantityButtons(card) {
+            const option = Object.values(selectedItems).find(item => item.name === card.querySelector('.option-name').textContent);
+            if (!option) return;
+
+            const minusBtn = card.querySelector('.qty-minus');
+            const plusBtn = card.querySelector('.qty-plus');
+            const qtyInput = card.querySelector('.qty-input');
+
+            minusBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (option.quantity > 1) {
+                    option.quantity--;
+                    qtyInput.value = option.quantity;
+                    updateQuote();
+                }
+            });
+
+            plusBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                option.quantity++;
+                qtyInput.value = option.quantity;
+                updateQuote();
+            });
+        }
+
+        function updateQuote() {
+            const summaryItems = document.getElementById('summaryItems');
+            const totalPrice = document.getElementById('totalPrice');
+
+            if (Object.keys(selectedItems).length === 0) {
+                summaryItems.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Select items to see your quote</p>';
+                totalPrice.textContent = '£0';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            Object.keys(selectedItems).forEach(id => {
+                const item = selectedItems[id];
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="summary-item">
+                        <span class="summary-item-name">${item.name}${item.quantity > 1 ? ` x${item.quantity}` : ''}</span>
+                        <span class="summary-item-price">£${itemTotal}</span>
+                    </div>
+                `;
+            });
+
+            summaryItems.innerHTML = html;
+            totalPrice.textContent = `£${total.toLocaleString()}`;
+            submitBtn.disabled = false;
+        }
+
+        submitBtn.addEventListener('click', () => {
+            if (!currentProjectType || Object.keys(selectedItems).length === 0) return;
+
+            // Store in sessionStorage and redirect to quote page
+            sessionStorage.setItem('quoteData', JSON.stringify({
+                projectType: currentProjectType,
+                items: selectedItems,
+                timestamp: new Date().toISOString()
+            }));
+
+            window.location.href = 'quote-summary.html';
+        });
+
+        // Initialize
+        initProjectType();
+    </script>
+</body>
+</html>
