@@ -2053,7 +2053,7 @@ Final pricing to be confirmed after consultation.
 
             fetch('https://formspree.io/f/mwvjgppg', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
                     name, email, phone, postcode, message
                 })
@@ -2175,7 +2175,7 @@ Final pricing to be confirmed after consultation.
 
             fetch('https://formspree.io/f/mwvjgppg', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
                     name,
                     email,
