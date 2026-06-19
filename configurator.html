@@ -18,7 +18,7 @@
         }
 
         .wizard-wrapper {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -145,6 +145,7 @@
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 2rem;
+            grid-column: 1 / -1;
         }
 
         .measurement-guide h4 {
@@ -236,21 +237,7 @@
             color: var(--text-white);
         }
 
-        @media (max-width: 600px) {
-            .style-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .type-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dimensions-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Step 4: Package */
+        /* Step 4: Package Selection */
         .package-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -263,7 +250,6 @@
             border: 2px solid var(--border-color);
             border-radius: 8px;
             padding: 1.5rem;
-            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
@@ -329,85 +315,119 @@
             border-top: 1px solid var(--border-color);
         }
 
-        /* Step 5: Extras */
-        .extras-grid {
+        /* Step 5: Customize */
+        .customize-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
             margin-bottom: 2rem;
         }
 
-        .extra-card {
-            background: var(--primary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
+        .customize-items {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
-        .extra-card:hover {
-            border-color: var(--accent-gold);
-            background: rgba(201, 169, 97, 0.08);
-        }
-
-        .extra-card input {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .extra-info {
-            flex: 1;
-        }
-
-        .extra-name {
-            font-weight: 600;
-            color: var(--text-white);
-            margin-bottom: 0.2rem;
-        }
-
-        .extra-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .extra-price {
-            color: var(--accent-gold);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        /* Step 6: Review */
-        .review-section {
+        .customize-item {
             background: var(--primary-dark);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
         }
 
-        .review-label {
+        .customize-item-label {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-bottom: 0.5rem;
         }
 
-        .review-value {
-            color: var(--text-white);
+        .customize-item-current {
             font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-white);
+            margin-bottom: 1rem;
+        }
+
+        .customize-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .customize-option {
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .customize-option:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .customize-option.active {
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            border-color: var(--accent-gold);
+        }
+
+        .price-adjustment {
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .customize-summary {
+            background: var(--primary-dark);
+            border: 2px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-title {
+            color: var(--accent-gold);
             font-weight: 600;
             margin-bottom: 1rem;
         }
 
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .summary-total {
+            border-top: 2px solid var(--accent-gold);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .summary-total span:last-child {
+            color: var(--accent-gold);
+        }
+
+        /* Step 6: Review */
         .review-estimate {
             background: rgba(201, 169, 97, 0.15);
             border: 2px solid var(--accent-gold);
             border-radius: 8px;
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
             margin-bottom: 2rem;
         }
@@ -472,6 +492,29 @@
             transform: none;
         }
 
+        @media (max-width: 768px) {
+            .customize-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .customize-summary {
+                position: static;
+                top: auto;
+            }
+
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .package-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -513,19 +556,16 @@
         <div class="wizard-wrapper">
             <div class="wizard-header">
                 <h1>Design Your Perfect Project</h1>
-                <p>Just 5 simple steps to get your rough quote</p>
+                <p>6 simple steps - start with a package, then customize</p>
             </div>
 
-            <div class="progress-bar" id="progressBar">
-                <!-- Generated by JS -->
-            </div>
+            <div class="progress-bar" id="progressBar"></div>
 
             <div class="wizard-content">
                 <!-- Step 1: Project Type -->
                 <div class="wizard-step active" id="step1">
                     <h2 class="step-title">What are you building?</h2>
                     <p class="step-subtitle">Select whether it's a kitchen or bathroom project</p>
-
                     <div class="type-grid">
                         <div class="type-card" data-type="kitchen">
                             <div class="type-icon">🍳</div>
@@ -542,7 +582,6 @@
                 <div class="wizard-step" id="step2">
                     <h2 class="step-title">What's your room size?</h2>
                     <p class="step-subtitle">Don't worry - just estimate! Measure wall-to-wall</p>
-
                     <div class="measurement-guide">
                         <h4>📏 Quick Measurement Guide</h4>
                         <div class="measurement-tip">
@@ -553,12 +592,7 @@
                             <strong>Width:</strong>
                             <span>Measure the other wall in meters (e.g., 2.5m)</span>
                         </div>
-                        <div class="measurement-tip">
-                            <strong>Not sure?</strong>
-                            <span>A standard UK kitchen is around 3m x 2.5m</span>
-                        </div>
                     </div>
-
                     <div class="dimensions-grid">
                         <div class="form-group">
                             <label for="length">Length (meters) *</label>
@@ -575,7 +609,6 @@
                 <div class="wizard-step" id="step3">
                     <h2 class="step-title">What's your style?</h2>
                     <p class="step-subtitle">Choose the look that appeals to you</p>
-
                     <div class="style-grid">
                         <div class="style-card" data-style="modern">
                             <div class="style-preview">✨</div>
@@ -594,78 +627,42 @@
 
                 <!-- Step 4: Package -->
                 <div class="wizard-step" id="step4">
-                    <h2 class="step-title">Pick your package</h2>
-                    <p class="step-subtitle">Choose quality level that fits your budget</p>
-
-                    <div class="package-grid">
-                        <div class="package-card" data-package="budget">
-                            <div class="package-badge">POPULAR</div>
-                            <div class="package-name">Budget</div>
-                            <ul class="package-features">
-                                <li>Essentials included</li>
-                                <li>Good quality</li>
-                                <li>Best value</li>
-                            </ul>
-                            <div class="package-price" id="price-budget">£3,500+</div>
-                        </div>
-                        <div class="package-card" data-package="standard">
-                            <div class="package-badge">BEST SELLER</div>
-                            <div class="package-name">Standard</div>
-                            <ul class="package-features">
-                                <li>Full features</li>
-                                <li>Premium quality</li>
-                                <li>Great choice</li>
-                            </ul>
-                            <div class="package-price" id="price-standard">£6,500+</div>
-                        </div>
-                        <div class="package-card" data-package="premium">
-                            <div class="package-badge">LUXURY</div>
-                            <div class="package-name">Premium</div>
-                            <ul class="package-features">
-                                <li>Everything included</li>
-                                <li>Luxury materials</li>
-                                <li>Bespoke finish</li>
-                            </ul>
-                            <div class="package-price" id="price-premium">£10,000+</div>
-                        </div>
-                    </div>
+                    <h2 class="step-title">Pick your starting package</h2>
+                    <p class="step-subtitle">This is your base - you'll customize it next</p>
+                    <div class="package-grid" id="packageGrid"></div>
                 </div>
 
-                <!-- Step 5: Extras -->
+                <!-- Step 5: Customize -->
                 <div class="wizard-step" id="step5">
-                    <h2 class="step-title">Any extras?</h2>
-                    <p class="step-subtitle">Add anything special you'd like (optional)</p>
-
-                    <div class="extras-grid" id="extrasGrid">
-                        <!-- Generated by JS -->
+                    <h2 class="step-title">Customize your package</h2>
+                    <p class="step-subtitle">Swap items to get exactly what you want</p>
+                    <div class="customize-grid">
+                        <div class="customize-items" id="customizeItems"></div>
+                        <div class="customize-summary">
+                            <div class="summary-title">Current Total</div>
+                            <div class="summary-row">
+                                <span>Base Package:</span>
+                                <span id="basePriceDisplay">£0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Upgrades/Changes:</span>
+                                <span id="upgradesPriceDisplay">£0</span>
+                            </div>
+                            <div class="summary-total">
+                                <span>Total:</span>
+                                <span id="totalPriceDisplay">£0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Step 6: Review -->
                 <div class="wizard-step" id="step6">
-                    <h2 class="step-title">Your Rough Quote</h2>
-                    <p class="step-subtitle">Review everything and submit for a detailed consultation</p>
-
-                    <div class="review-section">
-                        <div class="review-label">Project Type</div>
-                        <div class="review-value" id="reviewType">Kitchen</div>
-
-                        <div class="review-label">Room Size</div>
-                        <div class="review-value" id="reviewSize">3.5m x 2.5m</div>
-
-                        <div class="review-label">Style</div>
-                        <div class="review-value" id="reviewStyle">Modern</div>
-
-                        <div class="review-label">Package</div>
-                        <div class="review-value" id="reviewPackage">Standard</div>
-
-                        <div class="review-label">Extras</div>
-                        <div class="review-value" id="reviewExtras">None selected</div>
-                    </div>
-
+                    <h2 class="step-title">Your Custom Quote</h2>
+                    <p class="step-subtitle">Review and send to us for a detailed consultation</p>
                     <div class="review-estimate">
                         <div class="review-estimate-label">Your Rough Estimate:</div>
-                        <div class="review-estimate-price" id="reviewPrice">£0</div>
+                        <div class="review-estimate-price" id="finalPrice">£0</div>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">*Based on area C pricing. Final quote after consultation.</p>
                     </div>
                 </div>
@@ -680,16 +677,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div class="success-modal" id="successModal">
-        <div class="success-content">
-            <div class="success-icon">✓</div>
-            <h2>Quote Request Sent!</h2>
-            <p>We've received your details and will be in touch within 24 hours to confirm your rough estimate and discuss your project.</p>
-            <button class="success-btn" onclick="window.location.href='index.html'">Return to Home</button>
-        </div>
-    </div>
-
     <script>
         const steps = 6;
         let currentStep = 1;
@@ -699,34 +686,86 @@
             width: null,
             style: null,
             package: null,
-            extras: []
+            customizations: {}
         };
 
-        // Pricing data
-        const packagePrices = {
-            budget: { kitchen: 3500, bathroom: 2500 },
-            standard: { kitchen: 6500, bathroom: 4500 },
-            premium: { kitchen: 10000, bathroom: 7500 }
+        const packageDetails = {
+            kitchen: {
+                budget: {
+                    name: 'Budget',
+                    basePrice: 3500,
+                    items: {
+                        cabinets: { name: 'Standard Cabinets', price: 800 },
+                        worktop: { name: 'Laminate Worktop', price: 400 },
+                        appliances: { name: 'Basic Appliances', price: 1200 },
+                        tiling: { name: 'Standard Tiling', price: 400 },
+                        installation: { name: 'Installation & Finishing', price: 700 }
+                    }
+                },
+                standard: {
+                    name: 'Standard',
+                    basePrice: 6500,
+                    items: {
+                        cabinets: { name: 'Quality Cabinets', price: 1500 },
+                        worktop: { name: 'Solid Surface Worktop', price: 800 },
+                        appliances: { name: 'Premium Appliances', price: 2200 },
+                        tiling: { name: 'Quality Tiling', price: 800 },
+                        installation: { name: 'Professional Installation', price: 1200 }
+                    }
+                },
+                premium: {
+                    name: 'Premium',
+                    basePrice: 10000,
+                    items: {
+                        cabinets: { name: 'Luxury Cabinets', price: 2500 },
+                        worktop: { name: 'Granite Worktop', price: 1500 },
+                        appliances: { name: 'Luxury Appliances', price: 3500 },
+                        tiling: { name: 'Premium Tiling', price: 1200 },
+                        installation: { name: 'Bespoke Installation', price: 1800 }
+                    }
+                }
+            },
+            bathroom: {
+                budget: {
+                    name: 'Budget',
+                    basePrice: 2500,
+                    items: {
+                        suite: { name: 'Standard Suite', price: 600 },
+                        shower: { name: 'Basic Shower', price: 400 },
+                        tiling: { name: 'Standard Tiling', price: 500 },
+                        vanity: { name: 'Standard Vanity', price: 300 },
+                        installation: { name: 'Installation & Finishing', price: 700 }
+                    }
+                },
+                standard: {
+                    name: 'Standard',
+                    basePrice: 4500,
+                    items: {
+                        suite: { name: 'Quality Suite', price: 900 },
+                        shower: { name: 'Quality Shower', price: 700 },
+                        tiling: { name: 'Quality Tiling', price: 800 },
+                        vanity: { name: 'Quality Vanity', price: 500 },
+                        installation: { name: 'Professional Installation', price: 600 }
+                    }
+                },
+                premium: {
+                    name: 'Premium',
+                    basePrice: 7500,
+                    items: {
+                        suite: { name: 'Luxury Suite', price: 1500 },
+                        shower: { name: 'Luxury Shower System', price: 1200 },
+                        tiling: { name: 'Premium Tiling', price: 1200 },
+                        vanity: { name: 'Designer Vanity', price: 900 },
+                        installation: { name: 'Bespoke Installation', price: 1700 }
+                    }
+                }
+            }
         };
 
-        const extras = {
-            kitchen: [
-                { id: 'island', name: 'Kitchen Island', desc: 'Extra seating & storage', price: 1500 },
-                { id: 'premium-appliances', name: 'Premium Appliances', desc: 'Top-end cooking equipment', price: 2000 },
-                { id: 'wine-cooler', name: 'Wine Cooler', desc: 'Built-in wine storage', price: 800 }
-            ],
-            bathroom: [
-                { id: 'heated-floor', name: 'Heated Floor', desc: 'Luxury underfloor heating', price: 600 },
-                { id: 'steam-shower', name: 'Steam Shower', desc: 'Spa-like experience', price: 1200 },
-                { id: 'luxury-fixtures', name: 'Luxury Fixtures', desc: 'Premium taps & finishes', price: 800 }
-            ]
-        };
-
-        // Initialize
         function init() {
             initProgressBar();
             setupEventListeners();
-            updateExtrasGrid();
+            generatePackages();
         }
 
         function initProgressBar() {
@@ -739,30 +778,22 @@
         }
 
         function setupEventListeners() {
-            // Step 1: Type selection
+            // Type selection
             document.querySelectorAll('.type-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     wizardData.type = card.dataset.type;
+                    generatePackages();
                 });
             });
 
-            // Step 3: Style selection
+            // Style selection
             document.querySelectorAll('.style-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     wizardData.style = card.dataset.style;
-                });
-            });
-
-            // Step 4: Package selection
-            document.querySelectorAll('.package-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    wizardData.package = card.dataset.package;
                 });
             });
 
@@ -772,41 +803,165 @@
             document.getElementById('submitBtn').addEventListener('click', submitForm);
         }
 
-        function updateExtrasGrid() {
-            const extrasGrid = document.getElementById('extrasGrid');
-            extrasGrid.innerHTML = '';
+        function generatePackages() {
+            if (!wizardData.type) return;
 
-            const typeExtras = wizardData.type ? extras[wizardData.type] : [];
+            const grid = document.getElementById('packageGrid');
+            grid.innerHTML = '';
+            const packages = packageDetails[wizardData.type];
 
-            if (typeExtras.length === 0) {
-                extrasGrid.innerHTML = '<p style="color: var(--text-muted);">No extras available for this project type</p>';
-                return;
-            }
-
-            typeExtras.forEach(extra => {
+            Object.keys(packages).forEach(pkgKey => {
+                const pkg = packages[pkgKey];
                 const card = document.createElement('div');
-                card.className = 'extra-card';
-                card.innerHTML = `
-                    <input type="checkbox" id="extra-${extra.id}" data-id="${extra.id}" data-price="${extra.price}">
-                    <div class="extra-info">
-                        <div class="extra-name">${extra.name}</div>
-                        <div class="extra-desc">${extra.desc}</div>
-                    </div>
-                    <div class="extra-price">+£${extra.price}</div>
-                `;
+                card.className = 'package-card';
+                card.dataset.package = pkgKey;
 
-                card.querySelector('input').addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        if (!wizardData.extras.includes(extra.id)) {
-                            wizardData.extras.push(extra.id);
-                        }
-                    } else {
-                        wizardData.extras = wizardData.extras.filter(id => id !== extra.id);
-                    }
+                let itemsList = '';
+                Object.values(pkg.items).forEach(item => {
+                    itemsList += `<li>${item.name}</li>`;
                 });
 
-                extrasGrid.appendChild(card);
+                card.innerHTML = `
+                    <div class="package-name">${pkg.name}</div>
+                    <ul class="package-features">
+                        ${itemsList}
+                    </ul>
+                    <div class="package-price">From £${pkg.basePrice.toLocaleString()}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    wizardData.package = pkgKey;
+                    wizardData.customizations = {};
+                    generateCustomizeStep();
+                });
+
+                grid.appendChild(card);
             });
+        }
+
+        function generateCustomizeStep() {
+            if (!wizardData.type || !wizardData.package) return;
+
+            const container = document.getElementById('customizeItems');
+            container.innerHTML = '';
+
+            const pkg = packageDetails[wizardData.type][wizardData.package];
+
+            Object.keys(pkg.items).forEach(itemKey => {
+                const item = pkg.items[itemKey];
+                const div = document.createElement('div');
+                div.className = 'customize-item';
+
+                let optionsHtml = '';
+                // Generate upgrade options based on package tier
+                const upgrades = generateUpgrades(wizardData.type, itemKey, wizardData.package);
+                upgrades.forEach(upgrade => {
+                    const priceText = upgrade.price > item.price ? `+£${upgrade.price - item.price}` : (upgrade.price < item.price ? `-£${item.price - upgrade.price}` : '');
+                    optionsHtml += `
+                        <div class="customize-option ${upgrade.name === item.name ? 'active' : ''}" data-option="${upgrade.name}" data-price="${upgrade.price}">
+                            ${upgrade.name}
+                            ${priceText ? `<span class="price-adjustment">${priceText}</span>` : ''}
+                        </div>
+                    `;
+                });
+
+                div.innerHTML = `
+                    <div class="customize-item-label">${itemKey}</div>
+                    <div class="customize-item-current">${item.name}</div>
+                    <div class="customize-options">
+                        ${optionsHtml}
+                    </div>
+                `;
+
+                div.querySelectorAll('.customize-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        div.querySelectorAll('.customize-option').forEach(o => o.classList.remove('active'));
+                        option.classList.add('active');
+                        const optionName = option.dataset.option;
+                        const optionPrice = parseInt(option.dataset.price);
+                        wizardData.customizations[itemKey] = { name: optionName, price: optionPrice };
+                        updateCustomizeSummary();
+                    });
+                });
+
+                container.appendChild(div);
+            });
+
+            updateCustomizeSummary();
+        }
+
+        function generateUpgrades(type, itemKey, pkgTier) {
+            const upgrades = {
+                kitchen: {
+                    cabinets: [
+                        { name: 'Standard Cabinets', price: 800 },
+                        { name: 'Quality Cabinets', price: 1500 },
+                        { name: 'Luxury Cabinets', price: 2500 }
+                    ],
+                    worktop: [
+                        { name: 'Laminate Worktop', price: 400 },
+                        { name: 'Solid Surface Worktop', price: 800 },
+                        { name: 'Granite Worktop', price: 1500 }
+                    ],
+                    appliances: [
+                        { name: 'Basic Appliances', price: 1200 },
+                        { name: 'Premium Appliances', price: 2200 },
+                        { name: 'Luxury Appliances', price: 3500 }
+                    ],
+                    tiling: [
+                        { name: 'Standard Tiling', price: 400 },
+                        { name: 'Quality Tiling', price: 800 },
+                        { name: 'Premium Tiling', price: 1200 }
+                    ]
+                },
+                bathroom: {
+                    suite: [
+                        { name: 'Standard Suite', price: 600 },
+                        { name: 'Quality Suite', price: 900 },
+                        { name: 'Luxury Suite', price: 1500 }
+                    ],
+                    shower: [
+                        { name: 'Basic Shower', price: 400 },
+                        { name: 'Quality Shower', price: 700 },
+                        { name: 'Luxury Shower System', price: 1200 }
+                    ],
+                    tiling: [
+                        { name: 'Standard Tiling', price: 500 },
+                        { name: 'Quality Tiling', price: 800 },
+                        { name: 'Premium Tiling', price: 1200 }
+                    ],
+                    vanity: [
+                        { name: 'Standard Vanity', price: 300 },
+                        { name: 'Quality Vanity', price: 500 },
+                        { name: 'Designer Vanity', price: 900 }
+                    ]
+                }
+            };
+
+            return upgrades[type][itemKey] || [];
+        }
+
+        function updateCustomizeSummary() {
+            const pkg = packageDetails[wizardData.type][wizardData.package];
+            let basePrice = pkg.basePrice;
+            let upgradesPrice = 0;
+
+            const baseItems = Object.values(pkg.items);
+            baseItems.forEach((item, i) => {
+                const itemKeys = Object.keys(pkg.items);
+                const customization = wizardData.customizations[itemKeys[i]];
+                if (customization) {
+                    upgradesPrice += customization.price - item.price;
+                }
+            });
+
+            const totalPrice = basePrice + upgradesPrice;
+
+            document.getElementById('basePriceDisplay').textContent = `£${basePrice.toLocaleString()}`;
+            document.getElementById('upgradesPriceDisplay').textContent = `${upgradesPrice >= 0 ? '+' : ''}£${upgradesPrice.toLocaleString()}`;
+            document.getElementById('totalPriceDisplay').textContent = `£${totalPrice.toLocaleString()}`;
         }
 
         function canProceed() {
@@ -838,7 +993,7 @@
             }
 
             if (currentStep === 5) {
-                updateReview();
+                updateFinalPrice();
             }
 
             if (currentStep < steps) {
@@ -855,7 +1010,6 @@
         }
 
         function updateUI() {
-            // Update steps
             document.querySelectorAll('.wizard-step').forEach((step, i) => {
                 step.classList.remove('active');
                 if (i + 1 === currentStep) {
@@ -863,7 +1017,6 @@
                 }
             });
 
-            // Update progress bar
             document.querySelectorAll('.progress-step').forEach((dot, i) => {
                 dot.classList.remove('active', 'completed');
                 if (i + 1 < currentStep) {
@@ -873,52 +1026,29 @@
                 }
             });
 
-            // Update buttons
             document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
             document.getElementById('nextBtn').style.display = currentStep < steps ? 'block' : 'none';
             document.getElementById('submitBtn').style.display = currentStep === steps ? 'block' : 'none';
 
-            // Update extras on step 5
-            if (currentStep === 5) {
-                updateExtrasGrid();
-            }
-
-            // Scroll to top
             document.querySelector('.wizard-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function updateReview() {
-            const type = wizardData.type || 'Kitchen';
-            const size = `${wizardData.length}m x ${wizardData.width}m`;
-            const style = wizardData.style || 'Modern';
-            const pkg = wizardData.package || 'Standard';
+        function updateFinalPrice() {
+            const pkg = packageDetails[wizardData.type][wizardData.package];
+            let basePrice = pkg.basePrice;
+            let upgradesPrice = 0;
 
-            document.getElementById('reviewType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            document.getElementById('reviewSize').textContent = size;
-            document.getElementById('reviewStyle').textContent = style.charAt(0).toUpperCase() + style.slice(1);
-            document.getElementById('reviewPackage').textContent = pkg.charAt(0).toUpperCase() + pkg.slice(1);
+            const baseItems = Object.values(pkg.items);
+            baseItems.forEach((item, i) => {
+                const itemKeys = Object.keys(pkg.items);
+                const customization = wizardData.customizations[itemKeys[i]];
+                if (customization) {
+                    upgradesPrice += customization.price - item.price;
+                }
+            });
 
-            // Calculate price
-            const basePrice = packagePrices[pkg][type];
-            let extrasPrice = 0;
-
-            if (wizardData.extras.length > 0) {
-                const typeExtras = extras[type];
-                wizardData.extras.forEach(extraId => {
-                    const extra = typeExtras.find(e => e.id === extraId);
-                    if (extra) extrasPrice += extra.price;
-                });
-            }
-
-            const total = basePrice + extrasPrice;
-
-            if (wizardData.extras.length > 0) {
-                document.getElementById('reviewExtras').textContent = `${wizardData.extras.length} extra(s) selected`;
-            } else {
-                document.getElementById('reviewExtras').textContent = 'None';
-            }
-
-            document.getElementById('reviewPrice').textContent = `£${total.toLocaleString()}`;
+            const totalPrice = basePrice + upgradesPrice;
+            document.getElementById('finalPrice').textContent = `£${totalPrice.toLocaleString()}`;
         }
 
         function submitForm() {
@@ -932,28 +1062,25 @@
             const postcode = prompt('Your postcode:');
             if (!postcode) return;
 
-            // Calculate final price
-            const basePrice = packagePrices[wizardData.package][wizardData.type];
-            let extrasPrice = 0;
-            let extrasText = 'None';
+            const pkg = packageDetails[wizardData.type][wizardData.package];
+            let basePrice = pkg.basePrice;
+            let upgradesPrice = 0;
+            let customizations = [];
 
-            if (wizardData.extras.length > 0) {
-                const typeExtras = extras[wizardData.type];
-                const selectedExtras = [];
-                wizardData.extras.forEach(extraId => {
-                    const extra = typeExtras.find(e => e.id === extraId);
-                    if (extra) {
-                        selectedExtras.push(`${extra.name} (£${extra.price})`);
-                        extrasPrice += extra.price;
-                    }
-                });
-                extrasText = selectedExtras.join(', ');
-            }
+            const baseItems = Object.values(pkg.items);
+            baseItems.forEach((item, i) => {
+                const itemKeys = Object.keys(pkg.items);
+                const customization = wizardData.customizations[itemKeys[i]];
+                if (customization && customization.name !== item.name) {
+                    customizations.push(`${itemKeys[i]}: ${customization.name} (£${customization.price})`);
+                    upgradesPrice += customization.price - item.price;
+                }
+            });
 
-            const total = basePrice + extrasPrice;
+            const totalPrice = basePrice + upgradesPrice;
 
             const message = `
-Design Your Project Quote Request
+Design Your Project Quote Request - Custom Configuration
 
 Customer Details:
 Name: ${name}
@@ -965,10 +1092,18 @@ Project Details:
 Type: ${wizardData.type}
 Room Size: ${wizardData.length}m x ${wizardData.width}m
 Style: ${wizardData.style}
-Package: ${wizardData.package}
-Extras: ${extrasText}
+Base Package: ${wizardData.package}
 
-Rough Estimate: £${total.toLocaleString()}
+Base Package Items:
+${Object.entries(pkg.items).map(([k, v]) => `- ${k}: ${v.name} (£${v.price})`).join('\n')}
+
+Customizations:
+${customizations.length > 0 ? customizations.join('\n') : 'None - using standard package'}
+
+Pricing:
+Base Package: £${basePrice.toLocaleString()}
+Upgrades/Changes: ${upgradesPrice >= 0 ? '+' : ''}£${upgradesPrice.toLocaleString()}
+Total Estimate: £${totalPrice.toLocaleString()}
 
 ---
 This is a rough estimate based on the online configurator.
@@ -987,17 +1122,14 @@ Final pricing to be confirmed after consultation.
                 })
             }).then(response => {
                 if (response.ok) {
-                    document.getElementById('successModal').classList.add('active');
-                } else {
-                    alert('Error sending quote. Please try again.');
+                    alert('Quote request sent! We\'ll be in touch within 24 hours.');
+                    window.location.href = 'index.html';
                 }
             }).catch(error => {
-                console.error('Error:', error);
                 alert('Error sending quote. Please try again.');
             });
         }
 
-        // Initialize
         init();
     </script>
 </body>
