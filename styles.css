@@ -372,8 +372,6 @@ p {
     background: rgba(201, 169, 97, 0.05);
     border-radius: 8px;
     backdrop-filter: blur(10px);
-    position: relative;
-    z-index: 1;
 }
 
 .trust-item {
