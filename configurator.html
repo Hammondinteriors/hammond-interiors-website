@@ -1289,7 +1289,7 @@
 
                 // Special handling for Cabinet Installation - recommend multiple for all kitchens
                 if (category.includes('Cabinet')) {
-                    const numCabinets = roomSize < 8 ? 2 : roomSize < 15 ? 3 : 4;
+                    const numCabinets = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
                     for (let i = 0; i < Math.min(numCabinets, categoryItems.length); i++) {
                         selectedIndices.push(i);
                         quantities.push(1);
