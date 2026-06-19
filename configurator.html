@@ -1404,7 +1404,6 @@
             const recommendations = [];
             const metersAvailable = measurements[0] + measurements[1]; // Length + Width
             const roomSize = measurements[0] * measurements[1]; // Total area
-            let itemCounter = 0; // Counter for unique keys
 
             // Only auto-suggest from common/core categories. Deep trade work (electrical,
             // plumbing, doors, prep, premium extras) is left for the user to add manually.
@@ -1414,52 +1413,39 @@
                 'Floor & Wall Tiling'
             ];
 
-            // Select items from each category based on room size
+            // Pick ONE item per core category, with a quantity. Key must match the
+            // checkbox keys built in updateDirectItems: `${type}-${category}-${idx}`.
             Object.keys(items).forEach(category => {
                 const categoryItems = items[category];
                 if (!categoryItems || categoryItems.length === 0) return;
                 if (!coreCategories.includes(category)) return; // skip deep trade categories
 
-                let selectedIndices = [];
-                let quantities = [];
+                let idx = 0;       // which item in the category
+                let quantity = 1;  // how many
 
-                // Special handling for Cabinet Installation - recommend base + wall units
                 if (category.includes('Cabinet')) {
-                    // Recommend "Installation per standard unit" multiple times (base + wall units)
-                    const numBaseCabinets = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
-                    const numWallUnits = roomSize < 8 ? 6 : roomSize < 15 ? 8 : 10;
-                    const totalUnits = numBaseCabinets + numWallUnits;
-
-                    // Add standard unit installations (treating as both base and wall)
-                    for (let i = 0; i < totalUnits; i++) {
-                        selectedIndices.push(0); // Always use "Installation per standard unit"
-                        quantities.push(1);
-                    }
-                } else if (category.includes('Worktop') || category.includes('Tile') || category.includes('Tiling') || category.includes('per meter') || category.includes('per sq')) {
-                    // For per-meter items, select one and set appropriate quantity
-                    selectedIndices.push(0);
-                    let quantity = metersAvailable * 0.6; // Standard coverage
-                    quantities.push(Math.round(quantity * 10) / 10);
+                    // One "standard unit" line, quantity = base units + wall units
+                    idx = 0;
+                    const baseUnits = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
+                    const wallUnits = roomSize < 8 ? 6 : roomSize < 15 ? 8 : 10;
+                    quantity = baseUnits + wallUnits;
+                } else if (category.includes('Tile') || category.includes('Tiling') || category.includes('per sq')) {
+                    // Metered tiling — quantity based on room perimeter
+                    idx = 0;
+                    quantity = Math.round(metersAvailable * 0.6 * 10) / 10;
                 } else {
-                    // For other categories, pick first item
-                    selectedIndices.push(0);
-                    quantities.push(1);
+                    idx = 0;
+                    quantity = 1;
                 }
 
-                // Add recommendations for selected items
-                selectedIndices.forEach((idx, i) => {
-                    const selected = categoryItems[idx];
-                    const itemKey = `${projectType}-${category}-${itemCounter}`;
-                    itemCounter++;
-
-                    recommendations.push({
-                        key: itemKey,
-                        name: selected.name,
-                        spec: selected.spec,
-                        price: selected.price,
-                        quantity: quantities[i] || 1,
-                        category: category
-                    });
+                const selected = categoryItems[idx];
+                recommendations.push({
+                    key: `${projectType}-${category}-${idx}`,
+                    name: selected.name,
+                    spec: selected.spec,
+                    price: selected.price,
+                    quantity: quantity,
+                    category: category
                 });
             });
 
