@@ -994,6 +994,10 @@
         function checkInputsComplete() {
             const inputs = document.querySelectorAll('.question-group input[type="number"]');
             const allFilled = Array.from(inputs).every(input => input.value && input.value > 0);
+            if (allFilled) {
+                const measurements = Array.from(inputs).map(input => parseFloat(input.value));
+                questionAnswers[currentQuestion] = measurements;
+            }
             document.getElementById('qNextBtn').disabled = !allFilled;
         }
 
@@ -1007,11 +1011,118 @@
         }
 
         function finishQuestionnaire() {
-            alert('Questionnaire complete! Redirecting to quote builder...');
-            // Could implement pre-filled recommendations here
+            // Get answers
+            const projectType = questionAnswers[0]?.toLowerCase() || 'kitchen';
+            const budget = questionAnswers[1] || '';
+            const style = questionAnswers[2] || 'Modern';
+            const measurements = questionAnswers[3] || [3, 3];
+
+            // Set project type selector
+            const projectSelector = document.getElementById('projectSelector');
+            projectSelector.value = projectType;
+
+            // Set style selector
+            const styleSelector = document.getElementById('styleSelector');
+            if (styleSelector) {
+                styleSelector.value = style;
+            }
+
+            // Clear existing selections
+            selectedItems = {};
+
+            // Recommend items based on budget
+            const budgetMap = {
+                'Under £3,000': 'basic',
+                '£3,000-£6,000': 'standard',
+                '£6,000-£10,000': 'premium',
+                'Over £10,000': 'luxury'
+            };
+            const budgetTier = budgetMap[budget] || 'standard';
+
+            // Get recommended items
+            const items = priceData[projectType] || priceData.kitchen;
+            const recommendations = recommendItems(items, budgetTier, projectType, measurements);
+
+            // Pre-select recommendations
+            recommendations.forEach(rec => {
+                selectedItems[rec.key] = {
+                    ...rec,
+                    quantity: rec.quantity || 1
+                };
+            });
+
+            // Switch to direct builder
             currentRoute = 'direct';
             document.getElementById('questionnaireScreen').classList.remove('active');
             document.getElementById('directScreen').classList.add('active');
+
+            // Refresh the items browser to show selected items
+            browseItems();
+            updateDirectSummary();
+        }
+
+        function recommendItems(items, budgetTier, projectType, measurements) {
+            const recommendations = [];
+            const metersAvailable = measurements[0] + measurements[1]; // Length + Width
+
+            // Select one main item from each category based on budget
+            Object.keys(items).forEach(category => {
+                const categoryItems = items[category];
+                if (!categoryItems || categoryItems.length === 0) return;
+
+                let selected;
+
+                if (category.includes('Worktop') || category.includes('Tile') || category.includes('per meter') || category.includes('per sq')) {
+                    // For per-meter items, select one and set appropriate quantity
+                    selected = categoryItems[0];
+                    const quantity = budgetTier === 'luxury' ? metersAvailable :
+                                   budgetTier === 'premium' ? metersAvailable * 0.8 :
+                                   metersAvailable * 0.6;
+                    recommendations.push({
+                        key: `${category}-${selected.name}`,
+                        name: selected.name,
+                        spec: selected.spec,
+                        price: selected.price,
+                        quantity: Math.round(quantity * 10) / 10,
+                        category: category
+                    });
+                } else if (budgetTier === 'basic') {
+                    // Basic: first (cheapest) item
+                    selected = categoryItems[0];
+                    recommendations.push({
+                        key: `${category}-${selected.name}`,
+                        name: selected.name,
+                        spec: selected.spec,
+                        price: selected.price,
+                        quantity: 1,
+                        category: category
+                    });
+                } else if (budgetTier === 'standard') {
+                    // Standard: second item or middle
+                    selected = categoryItems[Math.floor(categoryItems.length / 2)];
+                    recommendations.push({
+                        key: `${category}-${selected.name}`,
+                        name: selected.name,
+                        spec: selected.spec,
+                        price: selected.price,
+                        quantity: 1,
+                        category: category
+                    });
+                } else if (budgetTier === 'premium' || budgetTier === 'luxury') {
+                    // Premium/Luxury: look for Premium or Luxury items
+                    selected = categoryItems.find(item => item.spec?.includes('Premium') || item.spec?.includes('Luxury')) || categoryItems[categoryItems.length - 1];
+                    recommendations.push({
+                        key: `${category}-${selected.name}`,
+                        name: selected.name,
+                        spec: selected.spec,
+                        price: selected.price,
+                        quantity: 1,
+                        category: category
+                    });
+                }
+            });
+
+            return recommendations;
         }
 
         function populateLaborItems() {
