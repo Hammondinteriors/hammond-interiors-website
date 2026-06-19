@@ -558,70 +558,74 @@
 
         const priceData = {
             kitchen: {
-                Cabinets: [
-                    { name: 'Base Cabinet 600mm', spec: 'Standard unit', price: 280, qty: 1 },
-                    { name: 'Base Cabinet 900mm', spec: 'Standard unit', price: 340, qty: 1 },
-                    { name: 'Base Cabinet 1200mm', spec: 'Standard unit', price: 420, qty: 1 },
-                    { name: 'Wall Unit 600mm', spec: 'Standard unit', price: 220, qty: 1 },
-                    { name: 'Wall Unit 900mm', spec: 'Standard unit', price: 280, qty: 1 },
-                    { name: 'Premium Base 600mm', spec: 'Premium finish', price: 420, qty: 1 },
-                    { name: 'Premium Base 900mm', spec: 'Premium finish', price: 520, qty: 1 }
+                'Removal & Prep': [
+                    { name: 'Remove existing kitchen', spec: 'inc. waste removal', price: 120, qty: 1 }
                 ],
-                Appliances: [
-                    { name: 'Built-in Oven', spec: '60cm electric', price: 450, qty: 1 },
-                    { name: 'Gas Hob', spec: '90cm 5-burner', price: 520, qty: 1 },
-                    { name: 'Extractor Hood', spec: '90cm', price: 380, qty: 1 },
-                    { name: 'Dishwasher', spec: 'Integrated 60cm', price: 520, qty: 1 },
-                    { name: 'Fridge', spec: 'Integrated 60cm', price: 720, qty: 1 }
+                'Cabinet Installation': [
+                    { name: 'Installation per standard unit', spec: 'inc. end panels & handles', price: 75, qty: 1 },
+                    { name: 'Installation per framed unit', spec: 'inc. decorative panels', price: 80, qty: 1 },
+                    { name: 'Installation of specialist unit', spec: 'curved 2-unit', price: 145, qty: 1 },
+                    { name: 'Customise a unit', spec: 'per unit', price: 45, qty: 1 }
                 ],
-                Worktops: [
-                    { name: 'Laminate Worktop', spec: 'per meter', price: 65, qty: 1 },
-                    { name: 'Solid Surface Worktop', spec: 'per meter', price: 150, qty: 1 },
-                    { name: 'Granite Worktop', spec: 'per meter', price: 250, qty: 1 }
+                'Appliances': [
+                    { name: 'Fit integrated appliance', spec: 'cooker hood, oven etc', price: 45, qty: 1 },
+                    { name: 'Disconnect & refit Gas Hob', spec: 'inc. safety check', price: 258, qty: 1 },
+                    { name: 'Box in boiler & vent', spec: 'per unit', price: 73, qty: 1 },
+                    { name: 'Install electrical appliance', spec: 'up to 3.2kw', price: 93, qty: 1 },
+                    { name: 'Install dual fuel range cooker', spec: 'inc. gas & electric', price: 320, qty: 1 }
                 ],
-                Sinks: [
-                    { name: 'Stainless Steel Sink', spec: 'Single bowl', price: 180, qty: 1 },
-                    { name: 'Ceramic Sink', spec: 'Double bowl', price: 280, qty: 1 },
-                    { name: 'Composite Sink', spec: 'Premium finish', price: 380, qty: 1 }
+                'Sinks & Taps': [
+                    { name: 'Installation of sink & taps', spec: 'inc. hot/cold isolation', price: 90, qty: 1 }
+                ],
+                'Worktops': [
+                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 75, qty: 1 },
+                    { name: 'Premium wood worktop finish', spec: 'sanding, oiling', price: 170, qty: 1 },
+                    { name: 'Premium solid surface finish', spec: 'sanding & finishing', price: 300, qty: 1 },
+                    { name: 'Installation of upstand', spec: 'per upstand', price: 25, qty: 1 }
                 ],
                 'Backsplash & Finishing': [
-                    { name: 'Tiling (Backsplash)', spec: 'per sq meter', price: 70, qty: 1 },
-                    { name: 'Splashback Panel', spec: 'per panel', price: 77, qty: 1 },
-                    { name: 'Sink Installation', spec: 'inc. taps & valves', price: 90, qty: 1 },
-                    { name: 'Worktop Installation', spec: 'per meter', price: 75, qty: 1 }
+                    { name: 'Installation of splashback', spec: 'per panel', price: 77, qty: 1 },
+                    { name: 'Minerva splashback', spec: 'per panel', price: 110, qty: 1 },
+                    { name: 'Install ducting & vent', spec: 'per extraction', price: 53, qty: 1 }
                 ]
             },
             bathroom: {
-                'WC & Suites': [
-                    { name: 'Standard Toilet Suite', spec: 'Close-coupled', price: 320, qty: 1 },
-                    { name: 'Wall-Hung Toilet', spec: 'Modern ceramic', price: 420, qty: 1 },
-                    { name: 'Luxury Toilet Suite', spec: 'Premium soft-close', price: 580, qty: 1 }
+                'Removal & Prep': [
+                    { name: 'Remove bathroom', spec: 'inc. waste removal', price: 120, qty: 1 }
                 ],
                 'Bath & Shower': [
-                    { name: 'Acrylic Bath 1700mm', spec: 'Standard with panel', price: 380, qty: 1 },
-                    { name: 'Shower Tray 800x800', spec: 'Ceramic tray', price: 220, qty: 1 },
-                    { name: 'Shower Enclosure 800x800', spec: 'Framed glass', price: 480, qty: 1 },
-                    { name: 'Shower Enclosure Frameless', spec: 'Premium system', price: 720, qty: 1 }
+                    { name: 'Installation of standard bath/shower', spec: 'inc. pipework & panels', price: 278, qty: 1 },
+                    { name: 'Installation of whirlpool bath', spec: 'inc. electrics & waste', price: 342, qty: 1 },
+                    { name: 'Installation of shower screen', spec: 'per screen', price: 58, qty: 1 },
+                    { name: 'Installation of shower enclosure 1400mm+', spec: 'inc. tray & waste', price: 314, qty: 1 },
+                    { name: 'Installation of shower enclosure <1400mm', spec: 'inc. tray & waste', price: 263, qty: 1 },
+                    { name: 'Installation of wetroom tray', spec: 'inc. waste & pipework', price: 675, qty: 1 },
+                    { name: 'Installation of thermostatic mixer shower', spec: 'inc. pipework', price: 167, qty: 1 },
+                    { name: 'Installation of electric shower', spec: 'inc. electrical', price: 109, qty: 1 }
                 ],
-                Vanities: [
-                    { name: 'Vanity Unit 600mm', spec: 'With ceramic sink', price: 420, qty: 1 },
-                    { name: 'Vanity Unit 900mm', spec: 'With ceramic sink', price: 580, qty: 1 },
-                    { name: 'Mirror Cabinet', spec: 'With LED lighting', price: 340, qty: 1 }
+                'WC & Bidets': [
+                    { name: 'Installation of WC', spec: 'inc. waste & water', price: 245, qty: 1 },
+                    { name: 'Installation of wall-hung toilet', spec: 'inc. frame & pipework', price: 245, qty: 1 },
+                    { name: 'Installation of bidet & tap', spec: 'inc. connections', price: 228, qty: 1 }
                 ],
-                Sinks: [
-                    { name: 'Ceramic Basin', spec: 'Single', price: 140, qty: 1 },
-                    { name: 'Composite Basin', spec: 'Double', price: 280, qty: 1 },
-                    { name: 'Wall-Hung Basin', spec: 'Modern ceramic', price: 180, qty: 1 }
+                'Vanities & Basins': [
+                    { name: 'Installation per unit', spec: 'general unit', price: 85, qty: 1 },
+                    { name: 'Installation of combined vanity & basin', spec: 'inc. pipework', price: 293, qty: 1 },
+                    { name: 'Installation of wall-hung toilet/basin frame', spec: 'per frame', price: 35, qty: 1 }
                 ],
-                'Wall & Floor Tiles': [
-                    { name: 'Ceramic Tiles', spec: 'per sq meter', price: 70, qty: 1 },
-                    { name: 'Porcelain Tiles', spec: 'per sq meter', price: 73, qty: 1 },
-                    { name: 'Natural Stone Tiles', spec: 'per sq meter', price: 75, qty: 1 }
+                'Tiling & Flooring': [
+                    { name: 'Installation of ceramic tiles', spec: 'per sq meter', price: 70, qty: 1 },
+                    { name: 'Installation of porcelain tiles', spec: 'per sq meter', price: 73, qty: 1 },
+                    { name: 'Installation of natural stone tiles', spec: 'per sq meter', price: 75, qty: 1 },
+                    { name: 'Install tile backing board', spec: 'per sq meter', price: 46, qty: 1 }
                 ],
-                Installation: [
-                    { name: 'Bath/Shower Installation', spec: 'inc. connections', price: 278, qty: 1 },
-                    { name: 'WC Installation', spec: 'inc. waste pipe', price: 245, qty: 1 },
-                    { name: 'Vanity Unit Installation', spec: 'inc. plumbing', price: 293, qty: 1 }
+                'Worktops': [
+                    { name: 'Installation of solid surface worktops', spec: 'inc. finishing', price: 100, qty: 1 },
+                    { name: 'Join worktop (butt & scribe)', spec: 'per join', price: 75, qty: 1 }
+                ],
+                'Accessories': [
+                    { name: 'Installation of towel rail/radiator', spec: 'inc. pipework up to 6m', price: 195, qty: 1 },
+                    { name: 'Installation of fitted furniture package', spec: 'WC & Vanities (1m pipework)', price: 596, qty: 1 }
                 ]
             }
         };
