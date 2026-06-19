@@ -422,6 +422,18 @@ p {
     font-weight: 600;
 }
 
+.bifis-member {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.bifis-logo {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
