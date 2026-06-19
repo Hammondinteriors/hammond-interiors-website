@@ -814,7 +814,9 @@
                 case 1:
                     return wizardData.type !== null;
                 case 2:
-                    return wizardData.length > 0 && wizardData.width > 0;
+                    const length = parseFloat(document.getElementById('length').value);
+                    const width = parseFloat(document.getElementById('width').value);
+                    return length > 0 && width > 0;
                 case 3:
                     return wizardData.style !== null;
                 case 4:
@@ -825,14 +827,14 @@
         }
 
         function nextStep() {
-            if (!canProceed()) {
-                alert('Please complete this step before continuing');
-                return;
-            }
-
             if (currentStep === 2) {
                 wizardData.length = parseFloat(document.getElementById('length').value);
                 wizardData.width = parseFloat(document.getElementById('width').value);
+            }
+
+            if (!canProceed()) {
+                alert('Please complete this step before continuing');
+                return;
             }
 
             if (currentStep === 5) {
