@@ -420,6 +420,36 @@
             color: var(--accent-gold);
         }
 
+        .summary-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-btn {
+            flex: 1;
+            padding: 0.7rem 0.5rem;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .summary-btn:hover { background: var(--accent-gold-light); }
+
+        .summary-btn.secondary {
+            flex: 0 0 auto;
+            background: transparent;
+            color: var(--accent-gold);
+            border: 1px solid var(--accent-gold);
+        }
+
+        .summary-btn.secondary:hover { background: rgba(201, 169, 97, 0.1); }
+
         .summary-note {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -728,7 +758,7 @@
 
                     <div class="form-group">
                         <label>Project Type *</label>
-                        <select id="directType" onchange="updateDirectItems()">
+                        <select id="directType" onchange="changeProjectType()">
                             <option value="">Select...</option>
                             <option value="kitchen">Kitchen</option>
                             <option value="bathroom">Bathroom</option>
@@ -754,6 +784,10 @@
                             <div class="summary-total">
                                 <span>Total:</span>
                                 <span id="directTotal">£0</span>
+                            </div>
+                            <div class="summary-actions">
+                                <button type="button" class="summary-btn" id="shareBtn" onclick="copyShareLink()">🔗 Copy Share Link</button>
+                                <button type="button" class="summary-btn secondary" onclick="clearSelection()">Clear</button>
                             </div>
                             <div class="summary-note">*Area C pricing. Final quote after consultation.</div>
                         </div>
@@ -785,6 +819,9 @@
     </div>
 
     <script>
+        // Hammond Interiors margin added on top of source (ex-VAT) trade prices. VAT is then applied to the total.
+        const MARKUP = 1.2;
+
         // Format a number as GBP with 2 decimals, e.g. 62.5 -> "£62.50"
         function gbp(n) {
             return '£' + Number(n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -992,11 +1029,87 @@
         let selectedItems = {};
         let currentQuestion = 0;
         let questionAnswers = {};
+        let currentType = '';                       // project type currently shown
+        let savedSelections = { kitchen: {}, bathroom: {} }; // remembered per type
 
         function startDirect() {
             currentRoute = 'direct';
             document.getElementById('routeScreen').classList.remove('active');
             document.getElementById('directScreen').classList.add('active');
+        }
+
+        // Switch project type, remembering each type's selections separately.
+        function changeProjectType() {
+            const newType = document.getElementById('directType').value;
+            // Save the selections for the type we're leaving
+            if (currentType) savedSelections[currentType] = { ...selectedItems };
+            currentType = newType;
+            // Restore whatever was saved for the new type (or start fresh)
+            selectedItems = newType ? { ...(savedSelections[newType] || {}) } : {};
+            updateDirectItems();
+            updateSummary();
+        }
+
+        // Clear the current board (and the saved memory for this type).
+        function clearSelection() {
+            selectedItems = {};
+            if (currentType) savedSelections[currentType] = {};
+            const ch = document.getElementById('customHours');
+            if (ch) ch.value = '';
+            updateDirectItems();
+            updateSummary();
+        }
+
+        // Build a shareable URL encoding the current quote, and copy it to clipboard.
+        function copyShareLink() {
+            const items = {};
+            Object.keys(selectedItems).forEach(k => {
+                items[k] = selectedItems[k].quantity || selectedItems[k].qty || 1;
+            });
+            const payload = {
+                t: document.getElementById('directType').value,
+                l: document.getElementById('directLength').value,
+                w: document.getElementById('directWidth').value,
+                h: document.getElementById('customHours') ? document.getElementById('customHours').value : '',
+                i: items
+            };
+            const code = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            const url = location.origin + location.pathname + '?q=' + code;
+
+            const btn = document.getElementById('shareBtn');
+            const done = () => { if (btn) { const t = btn.textContent; btn.textContent = '✓ Link Copied!'; setTimeout(() => btn.textContent = t, 2000); } };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done).catch(() => prompt('Copy this link:', url));
+            } else {
+                prompt('Copy this link:', url);
+            }
+        }
+
+        // On load, restore a quote from a ?q= share link if present.
+        function loadSharedQuote() {
+            const code = new URLSearchParams(location.search).get('q');
+            if (!code) return;
+            try {
+                const payload = JSON.parse(decodeURIComponent(escape(atob(code))));
+                const type = payload.t || 'kitchen';
+                document.getElementById('directType').value = type;
+                document.getElementById('directLength').value = payload.l || '';
+                document.getElementById('directWidth').value = payload.w || '';
+                currentType = type;
+                selectedItems = {};
+                Object.keys(payload.i || {}).forEach(k => { selectedItems[k] = { quantity: payload.i[k] }; });
+
+                document.getElementById('routeScreen').classList.remove('active');
+                document.getElementById('directScreen').classList.add('active');
+                currentRoute = 'direct';
+
+                updateDirectItems();
+                const ch = document.getElementById('customHours');
+                if (ch && payload.h) ch.value = payload.h;
+                updateSummary();
+            } catch (e) {
+                console.error('Could not read share link:', e);
+            }
         }
 
         function startQuestionnaire() {
@@ -1048,14 +1161,16 @@
 
                     const isMetered = item.spec.includes('per meter') || item.spec.includes('per sq');
                     const unit = item.spec.includes('sq') ? 'm²' : 'm';
-                    const priceDisplay = isMetered ? `${gbp(item.price)}/${unit}` : gbp(item.price);
+                    // Apply Hammond Interiors markup on top of the source (ex-VAT) trade price
+                    const unitPrice = Math.round(item.price * MARKUP * 100) / 100;
+                    const priceDisplay = isMetered ? `${gbp(unitPrice)}/${unit}` : gbp(unitPrice);
 
                     // Check if this item should be pre-selected
                     const isSelected = selectedItems[itemKey] !== undefined;
-                    const presetQuantity = isSelected ? selectedItems[itemKey].quantity : 1;
+                    const presetQuantity = isSelected ? (selectedItems[itemKey].quantity || selectedItems[itemKey].qty || 1) : 1;
 
                     row.innerHTML = `
-                        <input type="checkbox" class="item-checkbox" data-key="${itemKey}" data-price="${item.price}" ${isSelected ? 'checked' : ''} onchange="updateSummary()">
+                        <input type="checkbox" class="item-checkbox" data-key="${itemKey}" data-price="${unitPrice}" ${isSelected ? 'checked' : ''} onchange="updateSummary()">
                         <div class="item-info">
                             <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
                                 <div>
@@ -1376,6 +1491,7 @@
             // Set project type selector and trigger items display
             const typeSelector = document.getElementById('directType');
             typeSelector.value = projectType;
+            currentType = projectType;
 
             // Set room measurements
             document.getElementById('directLength').value = measurements[0];
@@ -1806,6 +1922,9 @@ Final pricing to be confirmed after consultation.
                 }
             }).catch(() => alert('Error sending. Please try again.'));
         }
+
+        // Restore a shared quote from the URL on first load
+        loadSharedQuote();
     </script>
 </body>
 </html>
