@@ -821,16 +821,6 @@
                 options: ['Kitchen', 'Bathroom']
             },
             {
-                q: 'What is your budget?',
-                type: 'select',
-                options: ['Under £3,000', '£3,000-£6,000', '£6,000-£10,000', 'Over £10,000']
-            },
-            {
-                q: 'What is your style?',
-                type: 'select',
-                options: ['Modern', 'Traditional', 'Contemporary']
-            },
-            {
                 q: 'Room measurements (approximate)?',
                 type: 'input',
                 fields: ['Length (m)', 'Width (m)']
@@ -1229,8 +1219,7 @@
         function finishQuestionnaire() {
             // Get answers
             const projectType = questionAnswers[0]?.toLowerCase() || 'kitchen';
-            const budget = questionAnswers[1] || '';
-            const measurements = questionAnswers[3] || [3, 3];
+            const measurements = questionAnswers[1] || [3, 3];
 
             // Set project type selector and trigger items display
             const typeSelector = document.getElementById('directType');
@@ -1243,18 +1232,9 @@
             // Clear existing selections
             selectedItems = {};
 
-            // Recommend items based on budget
-            const budgetMap = {
-                'Under £3,000': 'basic',
-                '£3,000-£6,000': 'standard',
-                '£6,000-£10,000': 'premium',
-                'Over £10,000': 'luxury'
-            };
-            const budgetTier = budgetMap[budget] || 'standard';
-
             // Get recommended items
             const items = priceData[projectType] || priceData.kitchen;
-            const recommendations = recommendItems(items, budgetTier, projectType, measurements);
+            const recommendations = recommendItems(items, projectType, measurements);
 
             // Pre-select recommendations
             recommendations.forEach(rec => {
@@ -1274,12 +1254,13 @@
             updateSummary();
         }
 
-        function recommendItems(items, budgetTier, projectType, measurements) {
+        function recommendItems(items, projectType, measurements) {
             const recommendations = [];
             const metersAvailable = measurements[0] + measurements[1]; // Length + Width
             const roomSize = measurements[0] * measurements[1]; // Total area
+            let itemCounter = 0; // Counter for unique keys
 
-            // Select items from each category based on budget and room size
+            // Select items from each category based on room size
             Object.keys(items).forEach(category => {
                 const categoryItems = items[category];
                 if (!categoryItems || categoryItems.length === 0) return;
@@ -1302,28 +1283,19 @@
                 } else if (category.includes('Worktop') || category.includes('Tile') || category.includes('Tiling') || category.includes('per meter') || category.includes('per sq')) {
                     // For per-meter items, select one and set appropriate quantity
                     selectedIndices.push(0);
-                    let quantity = budgetTier === 'luxury' ? metersAvailable :
-                                   budgetTier === 'premium' ? metersAvailable * 0.8 :
-                                   metersAvailable * 0.6;
+                    let quantity = metersAvailable * 0.6; // Standard coverage
                     quantities.push(Math.round(quantity * 10) / 10);
-                } else if (budgetTier === 'basic') {
-                    // Basic: pick first (usually cheapest)
+                } else {
+                    // For other categories, pick first item
                     selectedIndices.push(0);
-                    quantities.push(1);
-                } else if (budgetTier === 'standard') {
-                    // Standard: pick first or middle
-                    selectedIndices.push(Math.min(1, categoryItems.length - 1));
-                    quantities.push(1);
-                } else if (budgetTier === 'premium' || budgetTier === 'luxury') {
-                    // Premium/Luxury: pick higher-priced or later items
-                    selectedIndices.push(Math.min(Math.ceil(categoryItems.length * 0.7), categoryItems.length - 1));
                     quantities.push(1);
                 }
 
                 // Add recommendations for selected items
                 selectedIndices.forEach((idx, i) => {
                     const selected = categoryItems[idx];
-                    const itemKey = `${projectType}-${category}-${idx}`;
+                    const itemKey = `${projectType}-${category}-${itemCounter}`;
+                    itemCounter++;
 
                     recommendations.push({
                         key: itemKey,
