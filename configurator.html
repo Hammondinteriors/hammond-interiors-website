@@ -2182,12 +2182,11 @@ Final pricing to be confirmed after consultation.
                     phone,
                     postcode,
                     _subject: `New quote request from ${name} (${type})`,
-                    _replyto: email,
                     _cc: email,        // sends the requester a copy as confirmation
                     quoteLink,
                     message
                 })
-            }).then(response => {
+            }).then(async response => {
                 btn.disabled = false;
                 btn.textContent = 'Send Quote Request';
                 if (response.ok) {
@@ -2199,7 +2198,15 @@ Final pricing to be confirmed after consultation.
                     document.getElementById('modalForm').style.display = 'none';
                     document.getElementById('modalSuccess').style.display = 'block';
                 } else {
-                    alert('There was a problem sending your request. Please try again.');
+                    // Surface the actual Formspree error so we can diagnose
+                    let detail = '';
+                    try {
+                        const data = await response.json();
+                        if (data && data.errors) detail = data.errors.map(e => e.message).join(', ');
+                        else if (data && data.error) detail = data.error;
+                    } catch (_) {}
+                    console.error('Formspree error', response.status, detail);
+                    alert('Sorry, your request could not be sent' + (detail ? ': ' + detail : ' (error ' + response.status + ')') + '. Please try again or call us.');
                 }
             }).catch(() => {
                 btn.disabled = false;
