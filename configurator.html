@@ -296,6 +296,52 @@
             font-size: 0.9rem;
         }
 
+        /* Quantity stepper with -/+ buttons */
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 34px;
+            background: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .qty-btn:first-child { border-radius: 4px 0 0 4px; }
+        .qty-btn:last-child { border-radius: 0 4px 4px 0; }
+
+        .qty-btn:hover {
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+        }
+
+        .qty-stepper .item-quantity {
+            width: 46px;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            height: 34px;
+            -moz-appearance: textfield;
+        }
+
+        .qty-stepper .item-quantity::-webkit-outer-spin-button,
+        .qty-stepper .item-quantity::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .quantity-label {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -1010,28 +1056,44 @@
                             </div>
                         </div>
                         ${isMetered ? `
-                            <div style="${isSelected ? 'display: flex;' : 'display: none;'}" class="qty-wrapper">
-                                <input type="number" min="0" step="0.5" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="width: 70px;">
+                            <div class="qty-wrapper" style="${isSelected ? 'display: flex;' : 'display: none;'} flex-direction: column; align-items: center;">
+                                <div class="qty-stepper">
+                                    <button type="button" class="qty-btn" data-dir="down">−</button>
+                                    <input type="number" min="0" step="0.5" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()">
+                                    <button type="button" class="qty-btn" data-dir="up">+</button>
+                                </div>
                                 <span class="quantity-label">${unit}</span>
                             </div>
                         ` : `
-                            <input type="number" min="1" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="${isSelected ? 'display: block;' : 'display: none;'}">
+                            <div class="qty-wrapper" style="${isSelected ? 'display: flex;' : 'display: none;'}">
+                                <div class="qty-stepper">
+                                    <button type="button" class="qty-btn" data-dir="down">−</button>
+                                    <input type="number" min="1" step="1" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()">
+                                    <button type="button" class="qty-btn" data-dir="up">+</button>
+                                </div>
+                            </div>
                         `}
                         <div class="item-price">${priceDisplay}</div>
                     `;
 
                     row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
                         const qtyWrapper = row.querySelector('.qty-wrapper');
-                        const qtyInput = row.querySelector('.item-quantity');
-
-                        if (isMetered && qtyWrapper) {
-                            qtyWrapper.style.display = e.target.checked ? 'flex' : 'none';
-                            qtyWrapper.style.flexDirection = 'column';
-                            qtyWrapper.style.alignItems = 'center';
-                        } else {
-                            qtyInput.style.display = e.target.checked ? 'block' : 'none';
-                        }
+                        qtyWrapper.style.display = e.target.checked ? 'flex' : 'none';
                         updateSummary();
+                    });
+
+                    // -/+ stepper buttons
+                    row.querySelectorAll('.qty-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const input = row.querySelector('.item-quantity');
+                            const step = parseFloat(input.step) || 1;
+                            const min = parseFloat(input.min) || 0;
+                            let val = (parseFloat(input.value) || min) + (btn.dataset.dir === 'up' ? step : -step);
+                            val = Math.round(val * 100) / 100;
+                            if (val < min) val = min;
+                            input.value = val;
+                            updateSummary();
+                        });
                     });
 
                     list.appendChild(row);
