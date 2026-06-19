@@ -979,7 +979,7 @@
                     group.className = 'form-group';
                     group.innerHTML = `
                         <label>${field}</label>
-                        <input type="number" min="1" step="0.1" placeholder="e.g., 3.5" data-field="${idx}">
+                        <input type="number" min="1" step="0.1" placeholder="e.g., 3.5" data-field="${idx}" onchange="checkInputsComplete()">
                     `;
                     inputs.appendChild(group);
                 });
@@ -989,6 +989,12 @@
 
             container.appendChild(div);
             document.getElementById('qNextBtn').disabled = true;
+        }
+
+        function checkInputsComplete() {
+            const inputs = document.querySelectorAll('.question-group input[type="number"]');
+            const allFilled = Array.from(inputs).every(input => input.value && input.value > 0);
+            document.getElementById('qNextBtn').disabled = !allFilled;
         }
 
         function nextQuestion() {
