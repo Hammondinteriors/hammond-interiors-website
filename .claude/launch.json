@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "hammond-dev",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "9000", "--directory", "."],
+      "port": 9000,
+      "autoPort": true
+    }
+  ]
+}
