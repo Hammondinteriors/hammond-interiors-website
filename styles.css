@@ -361,13 +361,11 @@ p {
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 3rem;
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    width: 90%;
-    max-width: 600px;
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0), rgba(26, 26, 26, 1));
+    padding: 1rem 0;
 }
 
 .trust-bar {
