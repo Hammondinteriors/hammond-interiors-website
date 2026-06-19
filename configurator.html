@@ -1042,10 +1042,10 @@
             // Add materials
             materialsTotal = customMaterials;
 
-            // Calculate VAT only on labor + materials (not on products)
-            const laborAndMaterials = laborSubtotal + materialsTotal;
-            const vat = laborAndMaterials * 0.2;
-            const laborWithVat = laborAndMaterials + vat;
+            // Calculate totals - all prices are ex VAT, add 20% VAT to everything
+            const grandSubtotal = subtotal + laborSubtotal + materialsTotal;
+            const vat = grandSubtotal * 0.2;
+            const grandTotal = grandSubtotal + vat;
 
             // Build summary
             const summary = document.getElementById('directSummary');
@@ -1119,23 +1119,33 @@
                 summary.appendChild(row);
             }
 
-            // VAT line (only if labor/materials exist)
-            if (laborAndMaterials > 0) {
+            // Subtotal line
+            if (grandSubtotal > 0) {
                 const row = document.createElement('div');
                 row.className = 'summary-item';
                 row.style.borderTop = '1px solid var(--border-color)';
                 row.style.paddingTop = '0.8rem';
                 row.style.marginTop = '0.8rem';
                 row.innerHTML = `
-                    <span class="summary-item-name">VAT (20%) on Labor & Materials</span>
+                    <span class="summary-item-name">Subtotal (ex VAT)</span>
+                    <span class="summary-item-price">£${grandSubtotal.toLocaleString()}</span>
+                `;
+                summary.appendChild(row);
+            }
+
+            // VAT line
+            if (vat > 0) {
+                const row = document.createElement('div');
+                row.className = 'summary-item';
+                row.innerHTML = `
+                    <span class="summary-item-name">VAT (20%)</span>
                     <span class="summary-item-price">£${vat.toLocaleString()}</span>
                 `;
                 summary.appendChild(row);
             }
 
-            // Total
-            const total = subtotal + laborWithVat;
-            document.getElementById('directTotal').textContent = `£${total.toLocaleString()}`;
+            // Total (inc VAT)
+            document.getElementById('directTotal').textContent = `£${grandTotal.toLocaleString()}`;
         }
 
         function showQuestion() {
