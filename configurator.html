@@ -2141,51 +2141,36 @@ Final pricing to be confirmed after consultation.
             const { itemsList, subtotal, vat, total } = buildQuoteSummary();
             const quoteLink = buildShareLink();
 
-            const message = `
-New Fitting & Labour Quote Request
-
-Customer:
-Name: ${name}
-Email: ${email}
-Phone: ${phone || 'N/A'}
-Postcode: ${postcode}
-
-Project:
-Type: ${type}
-Room: ${length}m × ${width}m
-
-Items:${itemsList}
-
-Subtotal (ex VAT): ${gbp(subtotal)}
-VAT (20%): ${gbp(vat)}
-TOTAL (inc VAT): ${gbp(total)}
-
-View / edit this quote:
-${quoteLink}
-${notes ? `\nNotes: ${notes}\n` : ''}
----
-This estimate covers FITTING & LABOUR ONLY. It does not include the cost of
-units, appliances, worktops, tiles or other materials.
-Final pricing to be confirmed after consultation.
-            `;
+            const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+            const items = itemsList.trim();
 
             const btn = document.getElementById('qSubmitBtn');
             btn.disabled = true;
             btn.textContent = 'Sending…';
 
+            // Send clean, individually-named fields so Formspree renders a tidy
+            // labelled table (much nicer than one big text blob) for both copies.
+            const fields = {
+                _subject: `New quote request — ${name} (${typeLabel})`,
+                _cc: email,        // sends the requester a copy as confirmation
+                'Name': name,
+                'Email': email,
+                'Phone': phone || 'Not given',
+                'Postcode': postcode,
+                'Project': `${typeLabel}, ${length}m × ${width}m`,
+                'Items (fitting & labour)': items,
+                'Subtotal (ex VAT)': gbp(subtotal),
+                'VAT (20%)': gbp(vat),
+                'Total (inc VAT)': gbp(total),
+                'View / edit quote': quoteLink,
+                'Notes': notes || '—',
+                'Scope': 'Fitting & labour only — excludes units, appliances, worktops, tiles & materials. Final price confirmed after consultation.'
+            };
+
             fetch('https://formspree.io/f/mwvjgppg', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    name,
-                    email,
-                    phone,
-                    postcode,
-                    _subject: `New quote request from ${name} (${type})`,
-                    _cc: email,        // sends the requester a copy as confirmation
-                    quoteLink,
-                    message
-                })
+                body: JSON.stringify(fields)
             }).then(async response => {
                 btn.disabled = false;
                 btn.textContent = 'Send Quote Request';
