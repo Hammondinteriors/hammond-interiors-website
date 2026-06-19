@@ -695,19 +695,23 @@
                     const unit = item.spec.includes('sq') ? 'm²' : 'm';
                     const priceDisplay = isMetered ? `£${item.price}/${unit}` : `£${item.price}`;
 
+                    // Check if this item should be pre-selected
+                    const isSelected = selectedItems[itemKey] !== undefined;
+                    const presetQuantity = isSelected ? selectedItems[itemKey].quantity : 1;
+
                     row.innerHTML = `
-                        <input type="checkbox" class="item-checkbox" data-key="${itemKey}" data-price="${item.price}" onchange="updateSummary()">
+                        <input type="checkbox" class="item-checkbox" data-key="${itemKey}" data-price="${item.price}" ${isSelected ? 'checked' : ''} onchange="updateSummary()">
                         <div class="item-info">
                             <div class="item-name">${item.name}</div>
                             <div class="item-spec">${item.spec}</div>
                         </div>
                         ${isMetered ? `
-                            <div style="display: none;" class="qty-wrapper">
-                                <input type="number" min="0" step="0.5" value="1" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="width: 70px;">
+                            <div style="${isSelected ? 'display: flex;' : 'display: none;'}" class="qty-wrapper">
+                                <input type="number" min="0" step="0.5" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="width: 70px;">
                                 <span class="quantity-label">${unit}</span>
                             </div>
                         ` : `
-                            <input type="number" min="1" value="1" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="display: none;">
+                            <input type="number" min="1" value="${presetQuantity}" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="${isSelected ? 'display: block;' : 'display: none;'}">
                         `}
                         <div class="item-price">${priceDisplay}</div>
                     `;
@@ -1014,18 +1018,15 @@
             // Get answers
             const projectType = questionAnswers[0]?.toLowerCase() || 'kitchen';
             const budget = questionAnswers[1] || '';
-            const style = questionAnswers[2] || 'Modern';
             const measurements = questionAnswers[3] || [3, 3];
 
-            // Set project type selector
-            const projectSelector = document.getElementById('projectSelector');
-            projectSelector.value = projectType;
+            // Set project type selector and trigger items display
+            const typeSelector = document.getElementById('directType');
+            typeSelector.value = projectType;
 
-            // Set style selector
-            const styleSelector = document.getElementById('styleSelector');
-            if (styleSelector) {
-                styleSelector.value = style;
-            }
+            // Set room measurements
+            document.getElementById('directLength').value = measurements[0];
+            document.getElementById('directWidth').value = measurements[1];
 
             // Clear existing selections
             selectedItems = {};
@@ -1056,8 +1057,8 @@
             document.getElementById('questionnaireScreen').classList.remove('active');
             document.getElementById('directScreen').classList.add('active');
 
-            // Refresh the items browser to show selected items
-            browseItems();
+            // Display items with recommendations highlighted
+            updateDirectItems();
             updateDirectSummary();
         }
 
@@ -1070,56 +1071,36 @@
                 const categoryItems = items[category];
                 if (!categoryItems || categoryItems.length === 0) return;
 
-                let selected;
+                let selectedIdx = 0;
+                let quantity = 1;
 
                 if (category.includes('Worktop') || category.includes('Tile') || category.includes('per meter') || category.includes('per sq')) {
                     // For per-meter items, select one and set appropriate quantity
-                    selected = categoryItems[0];
-                    const quantity = budgetTier === 'luxury' ? metersAvailable :
-                                   budgetTier === 'premium' ? metersAvailable * 0.8 :
-                                   metersAvailable * 0.6;
-                    recommendations.push({
-                        key: `${category}-${selected.name}`,
-                        name: selected.name,
-                        spec: selected.spec,
-                        price: selected.price,
-                        quantity: Math.round(quantity * 10) / 10,
-                        category: category
-                    });
+                    selectedIdx = 0;
+                    quantity = budgetTier === 'luxury' ? metersAvailable :
+                               budgetTier === 'premium' ? metersAvailable * 0.8 :
+                               metersAvailable * 0.6;
+                    quantity = Math.round(quantity * 10) / 10;
                 } else if (budgetTier === 'basic') {
-                    // Basic: first (cheapest) item
-                    selected = categoryItems[0];
-                    recommendations.push({
-                        key: `${category}-${selected.name}`,
-                        name: selected.name,
-                        spec: selected.spec,
-                        price: selected.price,
-                        quantity: 1,
-                        category: category
-                    });
+                    selectedIdx = 0;
                 } else if (budgetTier === 'standard') {
-                    // Standard: second item or middle
-                    selected = categoryItems[Math.floor(categoryItems.length / 2)];
-                    recommendations.push({
-                        key: `${category}-${selected.name}`,
-                        name: selected.name,
-                        spec: selected.spec,
-                        price: selected.price,
-                        quantity: 1,
-                        category: category
-                    });
+                    selectedIdx = Math.floor(categoryItems.length / 2);
                 } else if (budgetTier === 'premium' || budgetTier === 'luxury') {
-                    // Premium/Luxury: look for Premium or Luxury items
-                    selected = categoryItems.find(item => item.spec?.includes('Premium') || item.spec?.includes('Luxury')) || categoryItems[categoryItems.length - 1];
-                    recommendations.push({
-                        key: `${category}-${selected.name}`,
-                        name: selected.name,
-                        spec: selected.spec,
-                        price: selected.price,
-                        quantity: 1,
-                        category: category
-                    });
+                    selectedIdx = categoryItems.findIndex(item => item.spec?.includes('Premium') || item.spec?.includes('Luxury'));
+                    if (selectedIdx === -1) selectedIdx = categoryItems.length - 1;
                 }
+
+                const selected = categoryItems[selectedIdx];
+                const itemKey = `${projectType}-${category}-${selectedIdx}`;
+
+                recommendations.push({
+                    key: itemKey,
+                    name: selected.name,
+                    spec: selected.spec,
+                    price: selected.price,
+                    quantity: quantity,
+                    category: category
+                });
             });
 
             return recommendations;
