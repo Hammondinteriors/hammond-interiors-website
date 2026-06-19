@@ -559,53 +559,69 @@
         const priceData = {
             kitchen: {
                 Cabinets: [
-                    { name: 'Base Cabinet 600mm', spec: 'Standard', price: 180, qty: 1 },
-                    { name: 'Base Cabinet 900mm', spec: 'Standard', price: 220, qty: 1 },
-                    { name: 'Base Cabinet 1200mm', spec: 'Standard', price: 260, qty: 1 },
-                    { name: 'Wall Unit 600mm', spec: 'Standard', price: 150, qty: 1 },
-                    { name: 'Wall Unit 900mm', spec: 'Standard', price: 180, qty: 1 },
-                    { name: 'Premium Base 600mm', spec: 'Premium', price: 280, qty: 1 },
-                    { name: 'Premium Base 900mm', spec: 'Premium', price: 350, qty: 1 }
+                    { name: 'Base Cabinet 600mm', spec: 'Standard unit', price: 280, qty: 1 },
+                    { name: 'Base Cabinet 900mm', spec: 'Standard unit', price: 340, qty: 1 },
+                    { name: 'Base Cabinet 1200mm', spec: 'Standard unit', price: 420, qty: 1 },
+                    { name: 'Wall Unit 600mm', spec: 'Standard unit', price: 220, qty: 1 },
+                    { name: 'Wall Unit 900mm', spec: 'Standard unit', price: 280, qty: 1 },
+                    { name: 'Premium Base 600mm', spec: 'Premium finish', price: 420, qty: 1 },
+                    { name: 'Premium Base 900mm', spec: 'Premium finish', price: 520, qty: 1 }
                 ],
                 Appliances: [
-                    { name: 'Built-in Oven', spec: '60cm electric', price: 400, qty: 1 },
-                    { name: 'Gas Hob', spec: '90cm 5-burner', price: 350, qty: 1 },
-                    { name: 'Extractor Hood', spec: '90cm', price: 280, qty: 1 },
-                    { name: 'Dishwasher', spec: 'Integrated 60cm', price: 450, qty: 1 },
-                    { name: 'Fridge', spec: 'Integrated 60cm', price: 600, qty: 1 },
-                    { name: 'Premium Oven', spec: '60cm dual', price: 650, qty: 1 }
+                    { name: 'Built-in Oven', spec: '60cm electric', price: 450, qty: 1 },
+                    { name: 'Gas Hob', spec: '90cm 5-burner', price: 520, qty: 1 },
+                    { name: 'Extractor Hood', spec: '90cm', price: 380, qty: 1 },
+                    { name: 'Dishwasher', spec: 'Integrated 60cm', price: 520, qty: 1 },
+                    { name: 'Fridge', spec: 'Integrated 60cm', price: 720, qty: 1 }
                 ],
                 Worktops: [
-                    { name: 'Laminate Worktop', spec: 'per meter', price: 120, qty: 1 },
-                    { name: 'Solid Surface Worktop', spec: 'per meter', price: 280, qty: 1 },
-                    { name: 'Granite Worktop', spec: 'per meter', price: 450, qty: 1 }
+                    { name: 'Laminate Worktop', spec: 'per meter', price: 65, qty: 1 },
+                    { name: 'Solid Surface Worktop', spec: 'per meter', price: 150, qty: 1 },
+                    { name: 'Granite Worktop', spec: 'per meter', price: 250, qty: 1 }
                 ],
-                'Finishing': [
-                    { name: 'Tiling (Backsplash)', spec: 'per sq meter', price: 85, qty: 1 },
-                    { name: 'Installation & Labor', spec: 'Full fit', price: 1200, qty: 1 }
+                Sinks: [
+                    { name: 'Stainless Steel Sink', spec: 'Single bowl', price: 180, qty: 1 },
+                    { name: 'Ceramic Sink', spec: 'Double bowl', price: 280, qty: 1 },
+                    { name: 'Composite Sink', spec: 'Premium finish', price: 380, qty: 1 }
+                ],
+                'Backsplash & Finishing': [
+                    { name: 'Tiling (Backsplash)', spec: 'per sq meter', price: 70, qty: 1 },
+                    { name: 'Splashback Panel', spec: 'per panel', price: 77, qty: 1 },
+                    { name: 'Sink Installation', spec: 'inc. taps & valves', price: 90, qty: 1 },
+                    { name: 'Worktop Installation', spec: 'per meter', price: 75, qty: 1 }
                 ]
             },
             bathroom: {
-                Suite: [
-                    { name: 'Standard Toilet Suite', spec: 'Close-coupled', price: 250, qty: 1 },
-                    { name: 'Wall-Hung Toilet', spec: 'Modern', price: 350, qty: 1 },
-                    { name: 'Luxury Toilet Suite', spec: 'Premium', price: 500, qty: 1 }
+                'WC & Suites': [
+                    { name: 'Standard Toilet Suite', spec: 'Close-coupled', price: 320, qty: 1 },
+                    { name: 'Wall-Hung Toilet', spec: 'Modern ceramic', price: 420, qty: 1 },
+                    { name: 'Luxury Toilet Suite', spec: 'Premium soft-close', price: 580, qty: 1 }
                 ],
                 'Bath & Shower': [
-                    { name: 'Acrylic Bath 1700mm', spec: 'Standard', price: 280, qty: 1 },
-                    { name: 'Shower Tray', spec: '800x800mm', price: 150, qty: 1 },
-                    { name: 'Shower Enclosure', spec: 'Framed 800x800', price: 400, qty: 1 },
-                    { name: 'Luxury Shower', spec: 'Frameless system', price: 800, qty: 1 }
+                    { name: 'Acrylic Bath 1700mm', spec: 'Standard with panel', price: 380, qty: 1 },
+                    { name: 'Shower Tray 800x800', spec: 'Ceramic tray', price: 220, qty: 1 },
+                    { name: 'Shower Enclosure 800x800', spec: 'Framed glass', price: 480, qty: 1 },
+                    { name: 'Shower Enclosure Frameless', spec: 'Premium system', price: 720, qty: 1 }
                 ],
                 Vanities: [
-                    { name: 'Vanity Unit 600mm', spec: 'With sink', price: 320, qty: 1 },
-                    { name: 'Vanity Unit 900mm', spec: 'With sink', price: 450, qty: 1 },
-                    { name: 'Mirror Cabinet', spec: 'LED lighting', price: 280, qty: 1 }
+                    { name: 'Vanity Unit 600mm', spec: 'With ceramic sink', price: 420, qty: 1 },
+                    { name: 'Vanity Unit 900mm', spec: 'With ceramic sink', price: 580, qty: 1 },
+                    { name: 'Mirror Cabinet', spec: 'With LED lighting', price: 340, qty: 1 }
                 ],
-                'Finishing': [
-                    { name: 'Wall Tiles', spec: 'per sq meter', price: 65, qty: 1 },
-                    { name: 'Floor Tiles', spec: 'per sq meter', price: 75, qty: 1 },
-                    { name: 'Installation & Labor', spec: 'Full fit', price: 1000, qty: 1 }
+                Sinks: [
+                    { name: 'Ceramic Basin', spec: 'Single', price: 140, qty: 1 },
+                    { name: 'Composite Basin', spec: 'Double', price: 280, qty: 1 },
+                    { name: 'Wall-Hung Basin', spec: 'Modern ceramic', price: 180, qty: 1 }
+                ],
+                'Wall & Floor Tiles': [
+                    { name: 'Ceramic Tiles', spec: 'per sq meter', price: 70, qty: 1 },
+                    { name: 'Porcelain Tiles', spec: 'per sq meter', price: 73, qty: 1 },
+                    { name: 'Natural Stone Tiles', spec: 'per sq meter', price: 75, qty: 1 }
+                ],
+                Installation: [
+                    { name: 'Bath/Shower Installation', spec: 'inc. connections', price: 278, qty: 1 },
+                    { name: 'WC Installation', spec: 'inc. waste pipe', price: 245, qty: 1 },
+                    { name: 'Vanity Unit Installation', spec: 'inc. plumbing', price: 293, qty: 1 }
                 ]
             }
         };
