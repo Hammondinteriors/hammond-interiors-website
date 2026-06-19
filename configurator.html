@@ -232,18 +232,26 @@
         .item-price {
             color: var(--accent-gold);
             font-weight: 600;
-            min-width: 80px;
+            min-width: 100px;
             text-align: right;
         }
 
         .item-quantity {
-            width: 50px;
+            width: 60px;
             padding: 0.4rem;
             background: var(--primary-dark);
             border: 1px solid var(--border-color);
             border-radius: 4px;
             color: var(--text-white);
             text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .quantity-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 0.2rem;
         }
 
         .quote-summary {
@@ -665,19 +673,38 @@
                     const row = document.createElement('div');
                     row.className = 'item-row';
 
+                    const isMetered = item.spec.includes('per meter') || item.spec.includes('per sq');
+                    const unit = item.spec.includes('sq') ? 'm²' : 'm';
+                    const priceDisplay = isMetered ? `£${item.price}/${unit}` : `£${item.price}`;
+
                     row.innerHTML = `
                         <input type="checkbox" class="item-checkbox" data-key="${itemKey}" data-price="${item.price}" onchange="updateSummary()">
                         <div class="item-info">
                             <div class="item-name">${item.name}</div>
                             <div class="item-spec">${item.spec}</div>
                         </div>
-                        <input type="number" min="1" value="1" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="display: none;">
-                        <div class="item-price">£${item.price}</div>
+                        ${isMetered ? `
+                            <div style="display: none;" class="qty-wrapper">
+                                <input type="number" min="0" step="0.5" value="1" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="width: 70px;">
+                                <span class="quantity-label">${unit}</span>
+                            </div>
+                        ` : `
+                            <input type="number" min="1" value="1" class="item-quantity" data-key="${itemKey}" onchange="updateSummary()" style="display: none;">
+                        `}
+                        <div class="item-price">${priceDisplay}</div>
                     `;
 
                     row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                        const qtyWrapper = row.querySelector('.qty-wrapper');
                         const qtyInput = row.querySelector('.item-quantity');
-                        qtyInput.style.display = e.target.checked ? 'block' : 'none';
+
+                        if (isMetered && qtyWrapper) {
+                            qtyWrapper.style.display = e.target.checked ? 'flex' : 'none';
+                            qtyWrapper.style.flexDirection = 'column';
+                            qtyWrapper.style.alignItems = 'center';
+                        } else {
+                            qtyInput.style.display = e.target.checked ? 'block' : 'none';
+                        }
                         updateSummary();
                     });
 
@@ -696,9 +723,14 @@
 
             checkboxes.forEach(cb => {
                 const key = cb.dataset.key;
-                const qty = parseInt(document.querySelector(`.item-quantity[data-key="${key}"]`).value) || 1;
-                const price = parseInt(cb.dataset.price);
-                selectedItems[key] = { price, qty };
+                const qtyInput = document.querySelector(`.item-quantity[data-key="${key}"]`);
+                const qty = parseFloat(qtyInput.value) || 1;
+                const price = parseFloat(cb.dataset.price);
+                const itemRow = cb.closest('.item-row');
+                const spec = itemRow.querySelector('.item-spec').textContent;
+                const isMetered = spec.includes('per meter') || spec.includes('per sq');
+
+                selectedItems[key] = { price, qty, isMetered, spec };
                 total += price * qty;
             });
 
@@ -711,9 +743,18 @@
                 row.className = 'summary-item';
                 const checkbox = document.querySelector(`[data-key="${key}"]`);
                 const itemName = checkbox.closest('.item-row').querySelector('.item-name').textContent;
+
+                let qtyDisplay = '';
+                if (item.isMetered) {
+                    const unit = item.spec.includes('sq') ? 'm²' : 'm';
+                    qtyDisplay = `${item.qty}${unit} @ £${item.price}/${unit}`;
+                } else {
+                    qtyDisplay = item.qty > 1 ? `×${item.qty}` : '';
+                }
+
                 row.innerHTML = `
                     <span class="summary-item-name">${itemName}</span>
-                    ${item.qty > 1 ? `<span class="summary-item-qty">×${item.qty}</span>` : ''}
+                    ${qtyDisplay ? `<span class="summary-item-qty">${qtyDisplay}</span>` : ''}
                     <span class="summary-item-price">£${(item.price * item.qty).toLocaleString()}</span>
                 `;
                 summary.appendChild(row);
