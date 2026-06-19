@@ -977,6 +977,11 @@
                 options: ['Kitchen', 'Bathroom']
             },
             {
+                q: 'What level of finish?',
+                type: 'select',
+                options: ['Standard', 'Higher', 'Premium']
+            },
+            {
                 q: 'Room measurements (approximate)?',
                 type: 'input',
                 fields: ['Length (m)', 'Width (m)']
@@ -1365,7 +1370,8 @@
         function finishQuestionnaire() {
             // Get answers
             const projectType = questionAnswers[0]?.toLowerCase() || 'kitchen';
-            const measurements = questionAnswers[1] || [3, 3];
+            const tier = (questionAnswers[1] || 'Standard').toLowerCase();
+            const measurements = questionAnswers[2] || [3, 3];
 
             // Set project type selector and trigger items display
             const typeSelector = document.getElementById('directType');
@@ -1380,7 +1386,7 @@
 
             // Get recommended items
             const items = priceData[projectType] || priceData.kitchen;
-            const recommendations = recommendItems(items, projectType, measurements);
+            const recommendations = recommendItems(items, projectType, measurements, tier);
 
             // Pre-select recommendations
             recommendations.forEach(rec => {
@@ -1400,54 +1406,78 @@
             updateSummary();
         }
 
-        function recommendItems(items, projectType, measurements) {
+        // What counts as a COMPLETE job (the core items every quote should include):
+        //   Kitchen  = strip-out, cabinets, worktops, sink & taps, oven + hob + extractor,
+        //              splashback, flooring.
+        //   Bathroom = strip-out, bath/shower, WC, basin/vanity, wall & floor tiling,
+        //              towel rail, extractor.
+        // The finish tier (standard / higher / premium) swaps worktop & flooring/tile
+        // materials and upgrades a few fittings.
+        function recommendItems(items, projectType, measurements, tier) {
+            tier = tier || 'standard';
             const recommendations = [];
-            const metersAvailable = measurements[0] + measurements[1]; // Length + Width
-            const roomSize = measurements[0] * measurements[1]; // Total area
+            const area = Math.round(measurements[0] * measurements[1] * 10) / 10; // floor m²
+            const perimeter = 2 * (measurements[0] + measurements[1]);            // wall run (m)
 
-            // Only auto-suggest from common/core categories. Deep trade work (electrical,
-            // plumbing, doors, prep, premium extras) is left for the user to add manually.
-            const coreCategories = [
-                'Removal & Prep', 'Cabinet Installation', 'Sinks & Taps',
-                'Bath & Shower', 'WC & Bidets', 'Basins & Vanities',
-                'Floor & Wall Tiling'
-            ];
-
-            // Pick ONE item per core category, with a quantity. Key must match the
-            // checkbox keys built in updateDirectItems: `${type}-${category}-${idx}`.
-            Object.keys(items).forEach(category => {
-                const categoryItems = items[category];
-                if (!categoryItems || categoryItems.length === 0) return;
-                if (!coreCategories.includes(category)) return; // skip deep trade categories
-
-                let idx = 0;       // which item in the category
-                let quantity = 1;  // how many
-
-                if (category.includes('Cabinet')) {
-                    // One "standard unit" line, quantity = base units + wall units
-                    idx = 0;
-                    const baseUnits = roomSize < 8 ? 3 : roomSize < 15 ? 4 : 5;
-                    const wallUnits = roomSize < 8 ? 6 : roomSize < 15 ? 8 : 10;
-                    quantity = baseUnits + wallUnits;
-                } else if (category.includes('Tile') || category.includes('Tiling') || category.includes('per sq')) {
-                    // Metered tiling — quantity based on room perimeter
-                    idx = 0;
-                    quantity = Math.round(metersAvailable * 0.6 * 10) / 10;
-                } else {
-                    idx = 0;
-                    quantity = 1;
-                }
-
-                const selected = categoryItems[idx];
+            // Find an item in a category by a substring of its name (case-insensitive).
+            function find(category, nameMatch) {
+                const arr = items[category];
+                if (!arr) return -1;
+                const i = arr.findIndex(it => it.name.toLowerCase().includes(nameMatch.toLowerCase()));
+                return i;
+            }
+            // Add one recommendation line (category + matched item + quantity).
+            function add(category, nameMatch, quantity) {
+                const arr = items[category];
+                if (!arr) return;
+                let idx = find(category, nameMatch);
+                if (idx < 0) idx = 0;
+                const sel = arr[idx];
                 recommendations.push({
                     key: `${projectType}-${category}-${idx}`,
-                    name: selected.name,
-                    spec: selected.spec,
-                    price: selected.price,
-                    quantity: quantity,
+                    name: sel.name,
+                    spec: sel.spec,
+                    price: sel.price,
+                    quantity: Math.round(quantity * 100) / 100,
                     category: category
                 });
-            });
+            }
+
+            if (projectType === 'kitchen') {
+                const baseUnits = area < 8 ? 3 : area < 15 ? 4 : 5;
+                const wallUnits = area < 8 ? 6 : area < 15 ? 8 : 10;
+
+                add('Removal & Prep', 'remove', 1);
+                add('Cabinet Installation', 'standard unit', baseUnits + wallUnits);
+                add('Worktops', 'join worktop', 2);                       // worktop joins
+                if (tier === 'higher') add('Worktops', 'premium wood', 1);
+                if (tier === 'premium') add('Worktops', 'premium solid surface', 1);
+                add('Sinks & Taps', 'sink & taps', 1);
+                add('Appliances', 'integrated appliance', 2);            // oven + hood
+                add('Appliances', '3.2kw', 1);                          // hob (electric ≤3.2kw)
+                add('Appliances', 'ducting', 1);                        // extractor vent
+                if (tier === 'premium') add('Splashback & Radiator', 'minerva', 2);
+                else add('Splashback & Radiator', 'install splashback', 2);
+                // Flooring material follows the tier
+                const floor = tier === 'premium' ? 'solid wood (glued'
+                            : tier === 'higher'  ? 'engineered wood'
+                            : 'laminate';
+                add('Flooring', floor, area);
+            } else {
+                add('Removal & Prep', 'remove', 1);
+                add('Bath & Shower', 'standard bath', 1);
+                if (tier !== 'standard') add('Bath & Shower', 'shower screen', 1);
+                add('WC & Bidets', 'install wc', 1);
+                if (tier === 'standard') add('Basins & Vanities', 'install basin', 1);
+                else add('Basins & Vanities', 'combined vanity', 1);
+                add('Towel Rail & Radiator', 'towel rail', 1);
+                add('Electrical & Extraction', 'extractor', 1);
+                // Wall + floor tiling material follows the tier
+                const tile = tier === 'premium' ? 'natural stone'
+                           : tier === 'higher'  ? 'porcelain'
+                           : 'ceramic';
+                add('Floor & Wall Tiling', tile, Math.round((area + perimeter) * 10) / 10);
+            }
 
             return recommendations;
         }
