@@ -372,6 +372,8 @@ p {
     background: rgba(201, 169, 97, 0.05);
     border-radius: 8px;
     backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1;
 }
 
 .trust-item {
@@ -1115,7 +1117,11 @@ p {
     }
 
     .hero {
-        padding: 60px 15px 40px;
+        padding: 80px 15px 40px;
+    }
+
+    .trust-bar {
+        margin-top: 2rem;
     }
 
     .hero-title {
