@@ -9,6 +9,18 @@ if (navToggle) {
     });
 }
 
+// Logo click to scroll to top
+const logoLink = document.getElementById('logoLink');
+if (logoLink) {
+    logoLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
 // Close menu when link is clicked
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', () => {
